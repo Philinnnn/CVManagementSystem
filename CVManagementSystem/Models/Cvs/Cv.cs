@@ -6,7 +6,7 @@ using Positions;
 public class Cv
 {
     public int Id { get; set; }
-
+    public CvStatus Status { get; set; } = CvStatus.Draft;
     public int CandidateId { get; set; }
     public Candidate Candidate { get; set; } = null!;
 

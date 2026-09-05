@@ -12,6 +12,10 @@ public class User
     public string Passhash { get; set; } = string.Empty;
     public string Fullname { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
+    public bool IsBlocked { get; set; }
+    public string PreferredLanguage { get; set; } = "en";
+    public string PreferredTheme { get; set; } = "light";
+    public ICollection<ExternalLogin> ExternalLogins { get; set; } = [];
     
     public Candidate? Candidate { get; set; }
     public ICollection<UserRole> UserRoles { get; set; } = [];

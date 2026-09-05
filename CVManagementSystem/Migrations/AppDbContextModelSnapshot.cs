@@ -37,9 +37,17 @@ namespace CVManagementSystem.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -102,6 +110,10 @@ namespace CVManagementSystem.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -175,6 +187,41 @@ namespace CVManagementSystem.Migrations
                     b.ToTable("Projects");
                 });
 
+            modelBuilder.Entity("CVManagementSystem.Models.Candidates.ProjectTag", b =>
+                {
+                    b.Property<int>("CandidateProjectId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TagId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("CandidateProjectId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("ProjectTags");
+                });
+
+            modelBuilder.Entity("CVManagementSystem.Models.Candidates.Tag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Tags");
+                });
+
             modelBuilder.Entity("CVManagementSystem.Models.Cvs.Cv", b =>
                 {
                     b.Property<int>("Id")
@@ -189,15 +236,19 @@ namespace CVManagementSystem.Migrations
                     b.Property<int>("PositionId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
                     b.Property<int>("Version")
                         .IsConcurrencyToken()
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CandidateId");
-
                     b.HasIndex("PositionId");
+
+                    b.HasIndex("CandidateId", "PositionId")
+                        .IsUnique();
 
                     b.ToTable("Cvs");
                 });
@@ -310,6 +361,35 @@ namespace CVManagementSystem.Migrations
                     b.ToTable("DiscussionMessages");
                 });
 
+            modelBuilder.Entity("CVManagementSystem.Models.Identity.ExternalLogin", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProviderKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("Provider", "ProviderKey")
+                        .IsUnique();
+
+                    b.ToTable("ExternalLogins");
+                });
+
             modelBuilder.Entity("CVManagementSystem.Models.Identity.Role", b =>
                 {
                     b.Property<int>("Id")
@@ -346,11 +426,22 @@ namespace CVManagementSystem.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsBlocked")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Login")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Passhash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PreferredLanguage")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PreferredTheme")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -391,10 +482,10 @@ namespace CVManagementSystem.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("CreatedBy")
+                    b.Property<int>("CreatorId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("CreatorId")
+                    b.Property<int>("MaxProjects")
                         .HasColumnType("integer");
 
                     b.Property<string>("Name")
@@ -404,9 +495,15 @@ namespace CVManagementSystem.Migrations
                     b.Property<bool>("Open")
                         .HasColumnType("boolean");
 
-                    b.HasKey("Id");
+                    b.Property<string>("ShortDescription")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.HasIndex("CreatedBy");
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("CreatorId");
 
@@ -462,6 +559,21 @@ namespace CVManagementSystem.Migrations
                     b.HasIndex("AttributeId");
 
                     b.ToTable("PositionAttributes");
+                });
+
+            modelBuilder.Entity("CVManagementSystem.Models.Positions.PositionTag", b =>
+                {
+                    b.Property<int>("PositionId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TagId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("PositionId", "TagId");
+
+                    b.HasIndex("TagId");
+
+                    b.ToTable("PositionTags");
                 });
 
             modelBuilder.Entity("CVManagementSystem.Models.Attributes.AttributeDefinition", b =>
@@ -525,6 +637,25 @@ namespace CVManagementSystem.Migrations
                         .IsRequired();
 
                     b.Navigation("Candidate");
+                });
+
+            modelBuilder.Entity("CVManagementSystem.Models.Candidates.ProjectTag", b =>
+                {
+                    b.HasOne("CVManagementSystem.Models.Candidates.CandidateProject", "CandidateProject")
+                        .WithMany()
+                        .HasForeignKey("CandidateProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CVManagementSystem.Models.Candidates.Tag", "Tag")
+                        .WithMany("ProjectTags")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CandidateProject");
+
+                    b.Navigation("Tag");
                 });
 
             modelBuilder.Entity("CVManagementSystem.Models.Cvs.Cv", b =>
@@ -614,6 +745,17 @@ namespace CVManagementSystem.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("CVManagementSystem.Models.Identity.ExternalLogin", b =>
+                {
+                    b.HasOne("CVManagementSystem.Models.Identity.User", "User")
+                        .WithMany("ExternalLogins")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("CVManagementSystem.Models.Identity.UserRole", b =>
                 {
                     b.HasOne("CVManagementSystem.Models.Identity.Role", "Role")
@@ -682,6 +824,25 @@ namespace CVManagementSystem.Migrations
                     b.Navigation("Position");
                 });
 
+            modelBuilder.Entity("CVManagementSystem.Models.Positions.PositionTag", b =>
+                {
+                    b.HasOne("CVManagementSystem.Models.Positions.Position", "Position")
+                        .WithMany("PositionTags")
+                        .HasForeignKey("PositionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CVManagementSystem.Models.Candidates.Tag", "Tag")
+                        .WithMany("PositionTags")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Position");
+
+                    b.Navigation("Tag");
+                });
+
             modelBuilder.Entity("CVManagementSystem.Models.Attributes.AttributeDefinition", b =>
                 {
                     b.Navigation("PositionAccessRules");
@@ -703,6 +864,13 @@ namespace CVManagementSystem.Migrations
                     b.Navigation("Cvs");
 
                     b.Navigation("Projects");
+                });
+
+            modelBuilder.Entity("CVManagementSystem.Models.Candidates.Tag", b =>
+                {
+                    b.Navigation("PositionTags");
+
+                    b.Navigation("ProjectTags");
                 });
 
             modelBuilder.Entity("CVManagementSystem.Models.Cvs.Cv", b =>
@@ -732,6 +900,8 @@ namespace CVManagementSystem.Migrations
 
                     b.Navigation("DiscussionMessages");
 
+                    b.Navigation("ExternalLogins");
+
                     b.Navigation("UserRoles");
                 });
 
@@ -744,6 +914,8 @@ namespace CVManagementSystem.Migrations
                     b.Navigation("Discussion");
 
                     b.Navigation("PositionAttributes");
+
+                    b.Navigation("PositionTags");
                 });
 #pragma warning restore 612, 618
         }
