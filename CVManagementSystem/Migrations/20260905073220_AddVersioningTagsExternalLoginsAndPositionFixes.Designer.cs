@@ -3,6 +3,7 @@ using System;
 using CVManagementSystem.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CVManagementSystem.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260905073220_AddVersioningTagsExternalLoginsAndPositionFixes")]
+    partial class AddVersioningTagsExternalLoginsAndPositionFixes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -175,6 +178,10 @@ namespace CVManagementSystem.Migrations
 
                     b.Property<DateTime?>("StartDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Tags")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -638,7 +645,7 @@ namespace CVManagementSystem.Migrations
             modelBuilder.Entity("CVManagementSystem.Models.Candidates.ProjectTag", b =>
                 {
                     b.HasOne("CVManagementSystem.Models.Candidates.CandidateProject", "CandidateProject")
-                        .WithMany("ProjectTags")
+                        .WithMany()
                         .HasForeignKey("CandidateProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -860,11 +867,6 @@ namespace CVManagementSystem.Migrations
                     b.Navigation("Cvs");
 
                     b.Navigation("Projects");
-                });
-
-            modelBuilder.Entity("CVManagementSystem.Models.Candidates.CandidateProject", b =>
-                {
-                    b.Navigation("ProjectTags");
                 });
 
             modelBuilder.Entity("CVManagementSystem.Models.Candidates.Tag", b =>

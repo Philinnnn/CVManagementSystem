@@ -19,10 +19,16 @@ namespace CVManagementSystem.Migrations
                 name: "IX_Cvs_CandidateId",
                 table: "Cvs");
 
-            migrationBuilder.RenameColumn(
+            migrationBuilder.DropColumn(
                 name: "CreatedBy",
+                table: "Positions");
+
+            migrationBuilder.AddColumn<int>(
+                name: "Version",
                 table: "Positions",
-                newName: "Version");
+                type: "integer",
+                nullable: false,
+                defaultValue: 1);
 
             migrationBuilder.AddColumn<bool>(
                 name: "IsBlocked",
@@ -258,10 +264,16 @@ namespace CVManagementSystem.Migrations
                 name: "Version",
                 table: "Attributes");
 
-            migrationBuilder.RenameColumn(
+            migrationBuilder.DropColumn(
                 name: "Version",
+                table: "Positions");
+
+            migrationBuilder.AddColumn<int>(
+                name: "CreatedBy",
                 table: "Positions",
-                newName: "CreatedBy");
+                type: "integer",
+                nullable: false,
+                defaultValue: 0);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Positions_CreatedBy",

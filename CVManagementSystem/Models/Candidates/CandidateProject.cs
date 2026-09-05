@@ -11,5 +11,5 @@ public class CandidateProject
     public string Description { get; set; } = string.Empty;
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
-    public string Tags { get; set; } = string.Empty;
+    public ICollection<ProjectTag> ProjectTags { get; set; } = [];
 }
