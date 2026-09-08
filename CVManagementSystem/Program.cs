@@ -1,7 +1,9 @@
 using CVManagementSystem.Data;
+using CVManagementSystem.Models.Attributes;
 using CVManagementSystem.Models.Identity;
 using CVManagementSystem.Services.Attributes;
 using CVManagementSystem.Services.Auth;
+using CVManagementSystem.Services.Candidates;
 using CVManagementSystem.Services.Positions;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
@@ -19,6 +21,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IAttributeService, AttributeService>();
 builder.Services.AddScoped<IPositionService, PositionService>();
+builder.Services.AddScoped<ICandidateProfileService, CandidateProfileService>();
+builder.Services.AddScoped<IProjectService, ProjectService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -42,6 +46,22 @@ using (var scope = app.Services.CreateScope())
             new Role { Name = "Candidate" },
             new Role { Name = "Recruiter" },
             new Role { Name = "Administrator" });
+        db.SaveChanges();
+    }
+    if (!db.Attributes.Any(a => a.IsBuiltIn))
+    {
+        var personalInfoCategory = db.Categories.FirstOrDefault(c => c.Name == "Personal Information")
+                                   ?? new Category { Name = "Personal Information" };
+
+        if (personalInfoCategory.Id == 0)
+            db.Categories.Add(personalInfoCategory);
+
+        db.Attributes.AddRange(
+            new AttributeDefinition { Name = "First Name", DataType = AttributeDataTypes.String, Category = personalInfoCategory, IsBuiltIn = true, Version = 1 },
+            new AttributeDefinition { Name = "Last Name", DataType = AttributeDataTypes.String, Category = personalInfoCategory, IsBuiltIn = true, Version = 1 },
+            new AttributeDefinition { Name = "Location", DataType = AttributeDataTypes.String, Category = personalInfoCategory, IsBuiltIn = true, Version = 1 },
+            new AttributeDefinition { Name = "Photo", DataType = AttributeDataTypes.Image, Category = personalInfoCategory, IsBuiltIn = true, Version = 1 }
+        );
         db.SaveChanges();
     }
 }

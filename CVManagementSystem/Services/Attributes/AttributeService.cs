@@ -137,7 +137,8 @@ public class AttributeService(AppDbContext db) : IAttributeService
         var attribute = await db.Attributes.FirstOrDefaultAsync(a => a.Id == id);
         if (attribute is null)
             return OperationResult.Fail("Attribute not found");
-
+        if (attribute.IsBuiltIn)
+            return OperationResult.Fail("Built-in attributes cannot be deleted");
         db.Attributes.Remove(attribute);
         await db.SaveChangesAsync();
         return OperationResult.Ok();

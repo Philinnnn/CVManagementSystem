@@ -6,7 +6,9 @@ public class CandidateAttributeValue
 {
     public int CandidateId { get; set; }
     public Candidate Candidate { get; set; } = null!;
-
+    public DateTime? DateRangeStart { get; set; }
+    public DateTime? DateRangeEnd { get; set; }
+    
     public int AttributeId { get; set; }
     public AttributeDefinition Attribute { get; set; } = null!;
 
