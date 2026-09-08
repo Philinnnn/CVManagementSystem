@@ -4,6 +4,7 @@ using CVManagementSystem.Models.Identity;
 using CVManagementSystem.Services.Attributes;
 using CVManagementSystem.Services.Auth;
 using CVManagementSystem.Services.Candidates;
+using CVManagementSystem.Services.Cvs;
 using CVManagementSystem.Services.Positions;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
@@ -23,6 +24,7 @@ builder.Services.AddScoped<IAttributeService, AttributeService>();
 builder.Services.AddScoped<IPositionService, PositionService>();
 builder.Services.AddScoped<ICandidateProfileService, CandidateProfileService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
+builder.Services.AddScoped<ICvService, CvService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
