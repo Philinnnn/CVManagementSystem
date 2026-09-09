@@ -1,0 +1,91 @@
+@model List<CVManagementSystem.Services.Attributes.Dtos.AttributeDto>
+@{
+    ViewData["Title"] = "Attribute Library";
+    var categories = (List<CategoryDto>)ViewBag.Categories;
+}
+
+<h2>Attribute Library</h2>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-auto">
+        <input type="text" name="q" value="@ViewBag.Query" class="form-control" placeholder="Search by name..." />
+    </div>
+    <div class="col-auto">
+        <select name="categoryId" class="form-select">
+            <option value="">All categories</option>
+            @foreach (var c in categories)
+            {
+                <option value="@c.Id" selected="@(ViewBag.SelectedCategoryId == c.Id)">@c.Name</option>
+            }
+        </select>
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-secondary">Filter</button>
+    </div>
+    <div class="col-auto ms-auto">
+        <a asp-action="Create" class="btn btn-primary">+ New Attribute</a>
+    </div>
+</form>
+
+<form asp-action="Delete" method="post" id="bulk-form" onsubmit="return confirm('Delete selected attribute(s)?');">
+    <div class="d-flex align-items-center gap-2 mb-2">
+        <button type="button" id="edit-btn" class="btn btn-sm btn-outline-secondary" disabled>Edit</button>
+        <button type="submit" id="delete-btn" class="btn btn-sm btn-outline-danger" disabled>Delete</button>
+        <span id="selection-count" class="text-muted small"></span>
+    </div>
+
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th style="width: 2rem;"><input type="checkbox" id="select-all" /></th>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Data Type</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var attr in Model)
+            {
+                <tr>
+                    <td><input type="checkbox" class="row-check" name="ids" value="@attr.Id" /></td>
+                    <td>@attr.Name @(attr.SelectOptions.Count > 0 ? $"({string.Join(", ", attr.SelectOptions.ToArray())})" : "")</td>
+                    <td>@attr.CategoryName</td>
+                    <td>@attr.DataType</td>
+                    <td>@attr.Description</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>
+
+@section Scripts {
+    <script>
+        const rowChecks = document.querySelectorAll('.row-check');
+        const selectAll = document.getElementById('select-all');
+        const editBtn = document.getElementById('edit-btn');
+        const deleteBtn = document.getElementById('delete-btn');
+        const countLabel = document.getElementById('selection-count');
+
+        function updateToolbar() {
+            const checked = document.querySelectorAll('.row-check:checked');
+            deleteBtn.disabled = checked.length === 0;
+            editBtn.disabled = checked.length !== 1;
+            countLabel.textContent = checked.length > 0 ? checked.length + ' selected' : '';
+        }
+
+        rowChecks.forEach(cb => cb.addEventListener('change', updateToolbar));
+
+        selectAll.addEventListener('change', () => {
+            rowChecks.forEach(cb => cb.checked = selectAll.checked);
+            updateToolbar();
+        });
+
+        editBtn.addEventListener('click', () => {
+            const checked = document.querySelector('.row-check:checked');
+            if (checked) {
+                window.location.href = '@Url.Action("Edit")/' + checked.value;
+            }
+        });
+    </script>
+}

@@ -1,0 +1,51 @@
+@model CVManagementSystem.Services.Attributes.Dtos.CreateAttributeRequest
+@{
+    ViewData["Title"] = "New Attribute";
+    var categories = (List<CategoryDto>)ViewBag.Categories;
+    var dataTypes = (IReadOnlyCollection<string>)ViewBag.DataTypes;
+}
+
+<h2>New Attribute</h2>
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label class="form-label">Name</label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Category</label>
+        <select asp-for="CategoryId" class="form-select">
+            @foreach (var c in categories)
+            {
+                <option value="@c.Id">@c.Name</option>
+            }
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Data Type</label>
+        <select asp-for="DataType" class="form-select">
+            @foreach (var dt in dataTypes)
+            {
+                <option value="@dt">@dt</option>
+            }
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Dropdown options (one per line, only used if Data Type is Select)</label>
+        <textarea name="selectOptionsRaw" class="form-control" rows="4"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+    <a asp-action="Index" class="btn btn-link">Cancel</a>
+</form>
+
+<hr />
+<h5>Quick-add category</h5>
+<form asp-action="CreateCategory" method="post" class="d-flex gap-2">
+    <input type="text" name="name" class="form-control" placeholder="New category name" />
+    <button type="submit" class="btn btn-outline-secondary">Add</button>
+</form>
