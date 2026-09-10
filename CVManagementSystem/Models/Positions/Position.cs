@@ -25,4 +25,5 @@ public class Position
     public ICollection<PositionAccessRule> AccessRules { get; set; } = [];
     public ICollection<Cv> Cvs { get; set; } = [];
     public Discussion? Discussion { get; set; }
+    public NpgsqlTypes.NpgsqlTsVector SearchVector { get; set; } = null!;
 }

@@ -22,4 +22,5 @@ public class User
     public ICollection<Position> CreatedPositions { get; set; } = [];
     public ICollection<CvLike> CvLikes { get; set; } = [];
     public ICollection<DiscussionMessage> DiscussionMessages { get; set; } = [];
+    public NpgsqlTypes.NpgsqlTsVector SearchVector { get; set; } = null!;
 }

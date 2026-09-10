@@ -60,6 +60,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         builder.Entity<User>()
             .HasIndex(u => u.Email)
             .IsUnique();
+        builder.Entity<User>()
+            .HasGeneratedTsVectorColumn(u => u.SearchVector, "english", u => new { u.Fullname, u.Login })
+            .HasIndex(u => u.SearchVector)
+            .HasMethod("GIN");
         builder.Entity<Role>()
             .HasIndex(r => r.Name)
             .IsUnique();
@@ -88,6 +92,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasIndex(p => p.CreatorId);
         builder.Entity<Position>()
             .HasIndex(p => p.Open);
+        builder.Entity<Position>()
+            .HasGeneratedTsVectorColumn(p => p.SearchVector, "english", p => new { p.Name, p.ShortDescription })
+            .HasIndex(p => p.SearchVector)
+            .HasMethod("GIN");
         builder.Entity<CandidateProject>()
             .HasIndex(cp => cp.CandidateId);
         builder.Entity<CvAttributeValue>()
