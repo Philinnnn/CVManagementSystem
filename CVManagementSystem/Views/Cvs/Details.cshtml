@@ -1,0 +1,144 @@
+@model CvDto
+@using CVManagementSystem.Models.Cvs
+@using Microsoft.AspNetCore.Html
+@{
+    ViewData["Title"] = $"{Model.CandidateName} — {Model.PositionName}";
+    var canEdit = (bool)ViewBag.CanEdit;
+    var isRecruiter = (bool)ViewBag.IsRecruiter;
+}
+
+<h2>@Model.CandidateName — @Model.PositionName</h2>
+<p>
+    Status: <strong>@Model.Status</strong>
+    @if (!Model.CandidateHasAccess)
+    {
+        <span class="text-danger"> (candidate no longer has access to this position)</span>
+    }
+</p>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (isRecruiter)
+{
+    <form asp-action="@(Model.LikedByCurrentUser ? "Unlike" : "Like")" asp-route-id="@Model.Id" method="post" class="mb-3">
+        <button type="submit" class="btn btn-outline-primary btn-sm">
+            @(Model.LikedByCurrentUser ? "♥ Unlike" : "♡ Like") (@Model.LikeCount)
+        </button>
+    </form>
+}
+
+<form asp-action="Update" asp-route-id="@Model.Id" method="post">
+    <input type="hidden" name="expectedVersion" value="@Model.Version" />
+
+    <table class="table">
+        <thead><tr><th style="width: 25%;">Attribute</th><th>Value</th></tr></thead>
+        <tbody>
+            @foreach (var attr in Model.Attributes)
+            {
+                <tr class="@(attr.IsEmpty ? "table-danger" : "")">
+                    <td>@attr.AttributeName @(attr.Required ? "*" : "")</td>
+                    <td>
+                        @if (!canEdit || Model.Status == CvStatus.Published)
+                        {
+                            @RenderReadOnly(attr)
+                        }
+                        else
+                        {
+                            @switch (attr.DataType)
+                            {
+                                case "String":
+                                    <input type="text" name="attr_@attr.AttributeId" value="@attr.TextValue" class="form-control" />
+                                    break;
+                                case "Text":
+                                    <textarea name="attr_@attr.AttributeId" class="form-control" rows="4">@attr.TextValue</textarea>
+                                    break;
+                                case "Image":
+                                    <input type="text" name="attr_@attr.AttributeId" value="@attr.TextValue" class="form-control" placeholder="Image URL (upload widget coming later)" />
+                                    break;
+                                case "Numeric":
+                                    <input type="number" step="any" name="attr_@attr.AttributeId" value="@attr.NumericValue" class="form-control" />
+                                    break;
+                                case "Date":
+                                    <input type="date" name="attr_@attr.AttributeId" value="@(attr.DateValue?.ToString("yyyy-MM-dd"))" class="form-control" />
+                                    break;
+                                case "Period":
+                                    <div class="d-flex gap-2">
+                                        <input type="date" name="attr_@(attr.AttributeId)_start" value="@(attr.DateRangeStart?.ToString("yyyy-MM-dd"))" class="form-control" />
+                                        <input type="date" name="attr_@(attr.AttributeId)_end" value="@(attr.DateRangeEnd?.ToString("yyyy-MM-dd"))" class="form-control" />
+                                    </div>
+                                    break;
+                                case "Boolean":
+                                    <input type="checkbox" name="attr_@attr.AttributeId" checked="@(attr.BooleanValue == true)" />
+                                    break;
+                                case "Select":
+                                    <select name="attr_@attr.AttributeId" class="form-select">
+                                        <option value="">--</option>
+                                        @foreach (var opt in attr.SelectOptions)
+                                        {
+                                            <option value="@opt" selected="@(opt == attr.TextValue)">@opt</option>
+                                        }
+                                    </select>
+                                    break;
+                            }
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @if (canEdit && Model.Status == CvStatus.Draft)
+    {
+        <button type="submit" class="btn btn-primary">Save</button>
+    }
+</form>
+
+@if (canEdit && Model.Status == CvStatus.Draft)
+{
+    <form asp-action="Publish" asp-route-id="@Model.Id" method="post" class="mt-2">
+        <input type="hidden" name="expectedVersion" value="@Model.Version" />
+        <button type="submit" class="btn btn-success">Publish</button>
+    </form>
+}
+
+<h5 class="mt-4">Projects</h5>
+@if (Model.Projects.Count == 0)
+{
+    <p class="text-muted">No matching projects.</p>
+}
+else
+{
+    <ul>
+        @foreach (var p in Model.Projects)
+        {
+            <li>
+                <strong>@p.Name</strong>
+                (@(p.StartDate?.ToString("yyyy-MM")) — @(p.EndDate?.ToString("yyyy-MM") ?? "present"))
+                <br />@p.Description
+                @if (p.Tags.Count > 0)
+                {
+                    <br /><span class="text-muted small">@string.Join(", ", p.Tags)</span>
+                }
+            </li>
+        }
+    </ul>
+}
+
+@functions {
+    private IHtmlContent RenderReadOnly(CvAttributeValueDto attr)
+    {
+        var display = attr.DataType switch
+        {
+            "Boolean" => attr.BooleanValue == true ? "Yes" : "No",
+            "Period" => $"{attr.DateRangeStart:yyyy-MM-dd} — {attr.DateRangeEnd:yyyy-MM-dd}",
+            "Date" => attr.DateValue?.ToString("yyyy-MM-dd") ?? "",
+            "Numeric" => attr.NumericValue?.ToString() ?? "",
+            _ => attr.TextValue ?? ""
+        };
+
+        return attr.IsEmpty ? new HtmlString("<em>empty</em>") : new HtmlString(System.Net.WebUtility.HtmlEncode(display));
+    }
+}
