@@ -9,4 +9,5 @@ public interface ICandidateProfileService
     Task<OperationResult> AddAttributeAsync(int candidateId, int attributeId);
     Task<OperationResult> RemoveAttributeAsync(int candidateId, int attributeId);
     Task<OperationResult<int>> SaveAsync(int candidateId, SaveProfileRequest request);
+    Task<int?> GetCandidateIdByUserIdAsync(int userId);
 }

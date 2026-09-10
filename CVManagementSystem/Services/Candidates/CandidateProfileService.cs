@@ -126,4 +126,10 @@ public class CandidateProfileService(AppDbContext db) : ICandidateProfileService
         DateRangeStart = value.DateRangeStart,
         DateRangeEnd = value.DateRangeEnd
     };
+    
+    public async Task<int?> GetCandidateIdByUserIdAsync(int userId)
+    {
+        var candidate = await db.Candidates.FirstOrDefaultAsync(c => c.UserId == userId);
+        return candidate?.Id;
+    }
 }

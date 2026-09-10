@@ -32,6 +32,9 @@
                             <a class="nav-link text-dark" asp-controller="Attributes" asp-action="Index">Attributes</a>
                         </li>
                     }
+                    <li class="nav-item">
+                        <a class="nav-link text-dark" asp-controller="Positions" asp-action="Index">Positions</a>
+                    </li>
                 </ul>
                 <ul class="navbar-nav">
                     @if (User.Identity?.IsAuthenticated == true)
