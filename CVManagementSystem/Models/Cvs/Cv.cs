@@ -17,4 +17,5 @@ public class Cv
 
     public ICollection<CvAttributeValue> AttributeValues { get; set; } = [];
     public ICollection<CvLike> Likes { get; set; } = [];
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

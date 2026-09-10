@@ -1,8 +1,59 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model CVManagementSystem.Services.Dashboard.Dtos.DashboardDto
+@{
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<h2>Dashboard</h2>
+
+<div class="row mb-4">
+    <div class="col-md-2"><div class="card text-center p-2"><div class="fs-4">@Model.Stats.CvsCreatedToday</div><div class="text-muted small">CVs today</div></div></div>
+    <div class="col-md-2"><div class="card text-center p-2"><div class="fs-4">@Model.Stats.TotalPositions</div><div class="text-muted small">Positions</div></div></div>
+    <div class="col-md-2"><div class="card text-center p-2"><div class="fs-4">@Model.Stats.TotalCandidates</div><div class="text-muted small">Candidates</div></div></div>
+    <div class="col-md-2"><div class="card text-center p-2"><div class="fs-4">@Model.Stats.TotalRecruiters</div><div class="text-muted small">Recruiters</div></div></div>
+    <div class="col-md-2"><div class="card text-center p-2"><div class="fs-4">@Model.Stats.TotalCvs</div><div class="text-muted small">Total CVs</div></div></div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <h5>Recent Positions</h5>
+        <table class="table table-striped">
+            <thead><tr><th>Name</th><th>Created</th><th>Status</th><th>CVs</th></tr></thead>
+            <tbody>
+                @foreach (var p in Model.RecentPositions)
+                {
+                    <tr>
+                        <td><a asp-controller="Positions" asp-action="Details" asp-route-id="@p.Id">@p.Name</a></td>
+                        <td>@p.CreatedAt.ToString("yyyy-MM-dd")</td>
+                        <td>@(p.Open ? "Open" : "Closed")</td>
+                        <td>@p.CvCount</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <h5 class="mt-4">Top 5 Positions</h5>
+        <table class="table table-striped">
+            <thead><tr><th>Name</th><th>CVs</th></tr></thead>
+            <tbody>
+                @foreach (var p in Model.TopPositions)
+                {
+                    <tr>
+                        <td><a asp-controller="Positions" asp-action="Details" asp-route-id="@p.Id">@p.Name</a></td>
+                        <td>@p.CvCount</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="col-md-4">
+        <h5>Tag Cloud</h5>
+        <div>
+            @foreach (var tag in Model.TagCloud)
+            {
+                var size = 0.8 + Math.Min(tag.Count, 10) * 0.15;
+                <span class="badge bg-secondary me-1 mb-1" style="font-size: @(size.ToString(System.Globalization.CultureInfo.InvariantCulture))rem;">@tag.Name (@tag.Count)</span>
+            }
+        </div>
+    </div>
 </div>

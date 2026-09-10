@@ -7,6 +7,7 @@ using CVManagementSystem.Services.Attributes;
 using CVManagementSystem.Services.Auth;
 using CVManagementSystem.Services.Candidates;
 using CVManagementSystem.Services.Cvs;
+using CVManagementSystem.Services.Dashboard;
 using CVManagementSystem.Services.Discussions;
 using CVManagementSystem.Services.Positions;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -31,6 +32,7 @@ builder.Services.AddScoped<ICvService, CvService>();
 builder.Services.AddScoped<IDiscussionService, DiscussionService>();
 builder.Services.AddSignalR();
 builder.Services.AddScoped<IUserAdminService, UserAdminService>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>

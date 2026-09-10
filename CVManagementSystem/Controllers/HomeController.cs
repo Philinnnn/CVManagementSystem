@@ -1,14 +1,16 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using CVManagementSystem.Models;
+using CVManagementSystem.Services.Dashboard;
 
 namespace CVManagementSystem.Controllers;
 
-public class HomeController : Controller
+public class HomeController (IDashboardService dashboardService, ILogger<HomeController> logger) : Controller
 {
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        return View();
+        var dashboard = await dashboardService.GetDashboardAsync();
+        return View(dashboard);
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
