@@ -1,0 +1,76 @@
+@model List<CVManagementSystem.Services.Discussions.Dtos.DiscussionMessageDto>
+@{
+    ViewData["Title"] = "Discussion";
+    var positionId = (int)ViewBag.PositionId;
+    var positionName = (string)ViewBag.PositionName;
+}
+
+<h2>Discussion — @positionName</h2>
+<a asp-controller="Positions" asp-action="Details" asp-route-id="@positionId" class="btn btn-link mb-3">&larr; Back to position</a>
+
+<div id="messages" class="mb-3" style="max-height: 500px; overflow-y: auto;">
+    @foreach (var m in Model)
+    {
+        <div class="mb-2 pb-2 border-bottom">
+            <strong>
+                @if (User.IsInRole("Recruiter") || User.IsInRole("Administrator"))
+                {
+                    <a asp-controller="Candidates" asp-action="Index" asp-route-candidateId="@m.UserId">@m.UserFullname</a>
+                }
+                else
+                {
+                    @m.UserFullname
+                }
+            </strong>
+            <span class="text-muted small">@m.SendAt.ToString("yyyy-MM-dd HH:mm")</span>
+            <div>@m.MessageText</div>
+        </div>
+    }
+</div>
+
+<form id="send-form" class="d-flex gap-2">
+    <input type="text" id="message-input" class="form-control" placeholder="Write a message..." />
+    <button type="submit" class="btn btn-primary">Send</button>
+</form>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    <script>
+        const positionId = @positionId;
+        const messagesEl = document.getElementById('messages');
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/hubs/discussion")
+            .withAutomaticReconnect()
+            .build();
+
+        connection.on("ReceiveMessage", (message) => {
+            const div = document.createElement('div');
+            div.className = 'mb-2 pb-2 border-bottom';
+            div.innerHTML = `<strong>${escapeHtml(message.userFullname)}</strong> <span class="text-muted small">${new Date(message.sendAt).toLocaleString()}</span><div>${escapeHtml(message.messageText)}</div>`;
+            messagesEl.appendChild(div);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        });
+
+        connection.start()
+            .then(() => connection.invoke("JoinPosition", positionId))
+            .catch(err => console.error(err));
+
+        document.getElementById('send-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const input = document.getElementById('message-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            connection.invoke("SendMessage", positionId, text)
+                .then(() => { input.value = ''; })
+                .catch(err => console.error(err));
+        });
+    </script>
+}

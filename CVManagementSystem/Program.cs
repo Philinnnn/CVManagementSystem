@@ -1,4 +1,5 @@
 using CVManagementSystem.Data;
+using CVManagementSystem.Hubs;
 using CVManagementSystem.Models.Attributes;
 using CVManagementSystem.Models.Identity;
 using CVManagementSystem.Services.Attributes;
@@ -27,6 +28,7 @@ builder.Services.AddScoped<ICandidateProfileService, CandidateProfileService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ICvService, CvService>();
 builder.Services.AddScoped<IDiscussionService, DiscussionService>();
+builder.Services.AddSignalR();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -87,5 +89,7 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapHub<DiscussionHub>("/discussion");
 
 app.Run();
