@@ -153,6 +153,7 @@ public class AttributeService(AppDbContext db) : IAttributeService
         CategoryName = attribute.Category?.Name ?? string.Empty,
         DataType = attribute.DataType,
         Version = attribute.Version,
+        IsBuiltIn = attribute.IsBuiltIn,
         SelectOptions = attribute.SelectOptions
             .OrderBy(o => o.OrderIndex)
             .Select(o => o.OptionValue)

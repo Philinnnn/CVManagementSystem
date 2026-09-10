@@ -10,4 +10,5 @@ public class AttributeDto
     public string DataType { get; set; } = string.Empty;
     public int Version { get; set; }
     public List<string> SelectOptions { get; set; } = [];
+    public bool IsBuiltIn { get; set; }
 }

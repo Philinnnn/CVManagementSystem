@@ -124,8 +124,7 @@ public class CvsController(
             return Forbid();
 
         await cvService.DeleteAsync(candidateId.Value, id);
-        // TODO: redirect to a proper "My CVs" list once the Candidates controller exists
-        return RedirectToAction("Index", "Home");
+        return RedirectToAction(nameof(CandidatesController.Index), "Candidates");
     }
 
     private int GetUserId() => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
