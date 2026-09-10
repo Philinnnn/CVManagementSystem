@@ -2,6 +2,7 @@ using CVManagementSystem.Data;
 using CVManagementSystem.Hubs;
 using CVManagementSystem.Models.Attributes;
 using CVManagementSystem.Models.Identity;
+using CVManagementSystem.Services.Admin;
 using CVManagementSystem.Services.Attributes;
 using CVManagementSystem.Services.Auth;
 using CVManagementSystem.Services.Candidates;
@@ -29,6 +30,7 @@ builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ICvService, CvService>();
 builder.Services.AddScoped<IDiscussionService, DiscussionService>();
 builder.Services.AddSignalR();
+builder.Services.AddScoped<IUserAdminService, UserAdminService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>

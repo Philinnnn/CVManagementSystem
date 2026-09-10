@@ -41,6 +41,12 @@
                             <a class="nav-link text-dark" asp-controller="Candidates" asp-action="Index">My Profile</a>
                         </li>
                     }
+                    @if (User.IsInRole("Administrator"))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Admin" asp-action="Index">Users</a>
+                        </li>
+                    }
                 </ul>
                 <ul class="navbar-nav">
                     @if (User.Identity?.IsAuthenticated == true)
