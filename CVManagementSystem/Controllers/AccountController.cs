@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Localization;
+
 namespace CVManagementSystem.Controllers;
 
 using System.Security.Claims;
@@ -81,6 +83,14 @@ public class AccountController(IAuthService authService) : Controller
 
     private async Task SignInAsync(User user)
     {
+        Response.Cookies.Append("theme", user.PreferredTheme,
+            new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1) });
+
+        Response.Cookies.Append(
+            CookieRequestCultureProvider.DefaultCookieName,
+            CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(user.PreferredLanguage)),
+            new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1) });
+        
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),

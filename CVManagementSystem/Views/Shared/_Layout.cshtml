@@ -1,5 +1,8 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+@{
+    var theme = Context.Request.Cookies["theme"] ?? "light";
+}
+<html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName" data-bs-theme="@theme">
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -25,6 +28,19 @@
                         <input type="text" name="q" class="form-control form-control-sm" placeholder="Search..." style="width: 200px;" />
                     </form>
                 }
+                <form asp-controller="Settings" asp-action="SetTheme" method="post" class="d-flex me-2">
+                    <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                    <input type="hidden" name="theme" value="@(theme == "dark" ? "light" : "dark")" />
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">@(theme == "dark" ? "☀ Light" : "🌙 Dark")</button>
+                </form>
+
+                <form asp-controller="Settings" asp-action="SetLanguage" method="post" class="d-flex me-2">
+                    <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                    <select name="culture" class="form-select form-select-sm" onchange="this.form.submit()" style="width: auto;">
+                        <option value="en" selected="@(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "en")">EN</option>
+                        <option value="ru" selected="@(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ru")">RU</option>
+                    </select>
+                </form>
                 <ul class="navbar-nav flex-grow-1">
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>

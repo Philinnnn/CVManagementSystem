@@ -14,6 +14,7 @@ using CVManagementSystem.Services.Search;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,7 +47,18 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 
 builder.Services.AddAuthorization();
-
+builder.Services.AddLocalization();
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var supportedCultures = new[] { "en", "ru" };
+    options.SetDefaultCulture(supportedCultures[0]);
+    options.AddSupportedCultures(supportedCultures);
+    options.AddSupportedUICultures(supportedCultures);
+    options.RequestCultureProviders =
+    [
+        new CookieRequestCultureProvider()
+    ];
+});
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
@@ -88,7 +100,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseRequestLocalization();
 app.UseAuthentication();
 app.UseAuthorization();
 
