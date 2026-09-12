@@ -235,13 +235,20 @@ public class PositionService(AppDbContext db) : IPositionService
 
     private async Task ApplyTagsAsync(Position position, List<string> tagNames)
     {
-        foreach (var raw in tagNames.Select(t => t.Trim()).Where(t => t.Length > 0).Distinct(StringComparer.OrdinalIgnoreCase))
+        var names = tagNames.Select(t => t.Trim()).Where(t => t.Length > 0).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        if (names.Count == 0)
+            return;
+
+        var existingTags = (await db.Tags.Where(t => names.Contains(t.Name)).ToListAsync())
+            .ToDictionary(t => t.Name);
+
+        foreach (var name in names)
         {
-            var tag = await db.Tags.FirstOrDefaultAsync(t => t.Name == raw);
-            if (tag is null)
+            if (!existingTags.TryGetValue(name, out var tag))
             {
-                tag = new Tag { Name = raw };
+                tag = new Tag { Name = name };
                 db.Tags.Add(tag);
+                existingTags[name] = tag;
             }
 
             position.PositionTags.Add(new PositionTag { Tag = tag });
