@@ -1,31 +1,210 @@
-html {
-  font-size: 14px;
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+:root,
+[data-bs-theme="light"] {
+  --paper: #f7f5ef;
+  --ink: #21262b;
+  --ink-soft: #4b5259;
+  --pine: #33553f;
+  --pine-dark: #24402e;
+  --gold: #b98a2e;
+  --line: #d8d3c6;
+  --danger: #a23b3b;
+
+  --bs-body-bg: var(--paper);
+  --bs-body-color: var(--ink);
+  --bs-link-color: var(--pine);
+  --bs-link-hover-color: var(--pine-dark);
+  --bs-primary: var(--pine);
+  --bs-border-color: var(--line);
+  --bs-secondary-color: var(--ink-soft);
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
+[data-bs-theme="dark"] {
+  --paper: #1b1f1c;
+  --ink: #eae7de;
+  --ink-soft: #b9b6ac;
+  --pine: #6fa584;
+  --pine-dark: #8fbfa1;
+  --gold: #d3ac5c;
+  --line: #33362f;
+  --danger: #d98787;
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+  --bs-body-bg: var(--paper);
+  --bs-body-color: var(--ink);
+  --bs-link-color: var(--pine);
+  --bs-link-hover-color: var(--pine-dark);
+  --bs-primary: var(--pine);
+  --bs-border-color: var(--line);
+  --bs-secondary-color: var(--ink-soft);
 }
 
 body {
-  margin-bottom: 60px;
+  font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+h1, h2, h3, h4, h5, h6,
+.navbar-brand {
+  font-family: 'Lora', Georgia, serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+/* Navbar: quiet, paper-toned, hairline bottom border instead of the default shadow */
+.navbar {
+  background-color: var(--bs-body-bg) !important;
+  border-bottom: 1px solid var(--line);
+  box-shadow: none !important;
+}
+
+.navbar-brand {
+  color: var(--ink) !important;
+  font-size: 1.25rem;
+}
+
+.nav-link {
+  color: var(--ink-soft) !important;
+  font-weight: 500;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: var(--pine) !important;
+}
+
+/* Buttons: flat, small radius, no heavy shadow */
+.btn {
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background-color: var(--pine);
+  border-color: var(--pine);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--pine-dark);
+  border-color: var(--pine-dark);
+}
+
+.btn-outline-secondary {
+  color: var(--ink-soft);
+  border-color: var(--line);
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--line);
+  color: var(--ink);
+}
+
+.btn-success {
+  background-color: var(--pine);
+  border-color: var(--pine);
+}
+
+/* Cards: index-card feel — flat, accent border on the left, no shadow */
+.card {
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--pine);
+  border-radius: 4px;
+  box-shadow: none;
+  background-color: transparent;
+}
+
+/* Tables: hairline rules, quiet serif header instead of bold grey bar */
+.table {
+  --bs-table-border-color: var(--line);
+}
+
+.table thead th {
+  font-family: 'Lora', Georgia, serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border-bottom: 2px solid var(--ink);
+  color: var(--ink);
+}
+
+.table-striped > tbody > tr:nth-of-type(odd) > * {
+  background-color: color-mix(in srgb, var(--line) 25%, transparent);
+}
+
+/* Form controls: flat, hairline border, pine focus ring instead of default blue */
+.form-control,
+.form-select {
+  border-color: var(--line);
+  border-radius: 4px;
+  background-color: transparent;
+  color: var(--ink);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--pine);
+  box-shadow: 0 0 0 0.2rem color-mix(in srgb, var(--pine) 25%, transparent);
+}
+
+/* Badges: use the gold accent instead of default grey */
+.badge.bg-secondary {
+  background-color: var(--gold) !important;
+  color: #fff !important;
+  font-weight: 500;
+}
+
+/* Empty/required field highlight: quieter than Bootstrap's default aggressive red */
+.table-danger,
+.table-danger > * {
+  --bs-table-bg: color-mix(in srgb, var(--danger) 12%, transparent) !important;
+}
+
+/* Footer: hairline top, quiet tone */
+.footer {
+  border-top: 1px solid var(--line) !important;
+  color: var(--ink-soft);
+}
+
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.btn-icon {
+  border: none;
+  background: transparent;
+  color: var(--ink-soft);
+  padding: 0.375rem 0.6rem;
+  border-radius: 4px;
+}
+
+.btn-icon:hover,
+.btn-icon:focus {
+  background-color: var(--line);
+  color: var(--ink);
+}
+
+.dropdown-menu {
+  border-color: var(--line);
+  box-shadow: none;
+  border-radius: 4px;
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+.dropdown-item.active,
+.dropdown-item:active {
+  background-color: var(--pine);
+}
+
+.dropdown-header {
+  font-family: 'Lora', Georgia, serif;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.input-group-text {
+  border-color: var(--line);
+  color: var(--ink-soft);
 }

@@ -1,112 +1,133 @@
 ﻿<!DOCTYPE html>
 @{
     var theme = Context.Request.Cookies["theme"] ?? "light";
+    var currentCulture = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+    var returnUrl = Context.Request.Path + Context.Request.QueryString;
 }
-<html lang="@System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName" data-bs-theme="@theme">
+<html lang="@currentCulture" data-bs-theme="@theme">
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] - CVManagementSystem</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css"/>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
     <link rel="stylesheet" href="~/CVManagementSystem.styles.css" asp-append-version="true"/>
 </head>
 <body>
 <header>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+    <nav class="navbar navbar-expand-lg mb-4">
         <div class="container-fluid">
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CVManagementSystem</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
+            <a class="navbar-brand" asp-controller="Home" asp-action="Index">CVManagementSystem</a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                    aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                @if (User.Identity?.IsAuthenticated == true)
-                {
-                    <form asp-controller="Search" asp-action="Index" method="get" class="d-flex me-3">
-                        <input type="text" name="q" class="form-control form-control-sm" placeholder="Search..." style="width: 200px;" />
-                    </form>
-                }
-                <form asp-controller="Settings" asp-action="SetTheme" method="post" class="d-flex me-2">
-                    <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
-                    <input type="hidden" name="theme" value="@(theme == "dark" ? "light" : "dark")" />
-                    <button type="submit" class="btn btn-sm btn-outline-secondary">@(theme == "dark" ? "☀ Light" : "🌙 Dark")</button>
-                </form>
 
-                <form asp-controller="Settings" asp-action="SetLanguage" method="post" class="d-flex me-2">
-                    <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
-                    <select name="culture" class="form-select form-select-sm" onchange="this.form.submit()" style="width: auto;">
-                        <option value="en" selected="@(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "en")">EN</option>
-                        <option value="ru" selected="@(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ru")">RU</option>
-                    </select>
-                </form>
-                <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                    </li>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav me-auto gap-1">
+                    <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Positions" asp-action="Index">Positions</a></li>
                     @if (User.IsInRole("Recruiter") || User.IsInRole("Administrator"))
                     {
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Attributes" asp-action="Index">Attributes</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Attributes" asp-action="Index">Attributes</a></li>
                     }
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-controller="Positions" asp-action="Index">Positions</a>
-                    </li>
                     @if (User.IsInRole("Candidate"))
                     {
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Candidates" asp-action="Index">My Profile</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Candidates" asp-action="Index">My Profile</a></li>
                     }
                     @if (User.IsInRole("Administrator"))
                     {
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Admin" asp-action="Index">Users</a>
-                        </li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Index">Users</a></li>
                     }
                 </ul>
-                <ul class="navbar-nav">
+
+                <div class="d-flex align-items-center gap-2 flex-wrap">
                     @if (User.Identity?.IsAuthenticated == true)
                     {
-                        <li class="nav-item">
-                            <span class="nav-link text-dark">Hi, @User.Identity.Name</span>
-                        </li>
-                        <li class="nav-item">
-                            <form asp-controller="Account" asp-action="Logout" method="post">
-                                <button type="submit" class="btn btn-link nav-link">Logout</button>
-                            </form>
-                        </li>
+                        <form asp-controller="Search" asp-action="Index" method="get" role="search">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-transparent"><i class="bi bi-search"></i></span>
+                                <input type="text" name="q" class="form-control" placeholder="Search positions, candidates..." style="width: 220px;"/>
+                            </div>
+                        </form>
+                    }
+
+                    <form asp-controller="Settings" asp-action="SetTheme" method="post">
+                        <input type="hidden" name="returnUrl" value="@returnUrl"/>
+                        <input type="hidden" name="theme" value="@(theme == "dark" ? "light" : "dark")"/>
+                        <button type="submit" class="btn btn-icon" title="Toggle theme" aria-label="Toggle theme">
+                            <i class="bi @(theme == "dark" ? "bi-sun" : "bi-moon-stars")"></i>
+                        </button>
+                    </form>
+
+                    <div class="dropdown">
+                        <button class="btn btn-icon dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Language">
+                            <i class="bi bi-globe2"></i> @currentCulture.ToUpperInvariant()
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <form asp-controller="Settings" asp-action="SetLanguage" method="post">
+                                    <input type="hidden" name="returnUrl" value="@returnUrl"/>
+                                    <input type="hidden" name="culture" value="en"/>
+                                    <button type="submit" class="dropdown-item @(currentCulture == "en" ? "active" : "")">English</button>
+                                </form>
+                            </li>
+                            <li>
+                                <form asp-controller="Settings" asp-action="SetLanguage" method="post">
+                                    <input type="hidden" name="returnUrl" value="@returnUrl"/>
+                                    <input type="hidden" name="culture" value="ru"/>
+                                    <button type="submit" class="dropdown-item @(currentCulture == "ru" ? "active" : "")">Русский</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <div class="dropdown">
+                            <button class="btn btn-icon dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle"></i>
+                                <span class="d-none d-md-inline">@User.Identity.Name</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><h6 class="dropdown-header">Signed in as @User.Identity.Name</h6></li>
+                                <li><hr class="dropdown-divider"/></li>
+                                <li>
+                                    <form asp-controller="Account" asp-action="Logout" method="post">
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="bi bi-box-arrow-right me-2"></i>Logout
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
                     }
                     else
                     {
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Register</a>
-                        </li>
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-sm btn-outline-secondary">Log in</a>
+                        <a asp-controller="Account" asp-action="Register" class="btn btn-sm btn-primary">Register</a>
                     }
-                </ul>
+                </div>
             </div>
         </div>
     </nav>
 </header>
+
 <div class="container">
     <main role="main" class="pb-3">
         @RenderBody()
     </main>
 </div>
 
-<footer class="border-top footer text-muted">
+<footer class="footer text-muted">
     <div class="container">
-        &copy; 2026 - CVManagementSystem - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        &copy; 2026 — CVManagementSystem
     </div>
 </footer>
+
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
