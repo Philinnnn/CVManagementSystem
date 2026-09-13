@@ -44,7 +44,7 @@ public class DashboardService(AppDbContext db) : IDashboardService
         {
             CvsCreatedToday = await db.Cvs.CountAsync(c => c.CreatedAt >= today),
             TotalPositions = await db.Positions.CountAsync(),
-            TotalCandidates = await db.Candidates.CountAsync(),
+            TotalCandidates = await db.UserRoles.CountAsync(ur => ur.Role.Name == "Candidate"),
             TotalRecruiters = await db.UserRoles.CountAsync(ur => ur.Role.Name == "Recruiter"),
             TotalCvs = await db.Cvs.CountAsync()
         };
