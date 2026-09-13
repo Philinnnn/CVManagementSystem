@@ -33,9 +33,10 @@
         <button type="submit" id="delete-btn" class="btn btn-sm btn-outline-danger" disabled>Delete</button>
         <span id="selection-count" class="text-muted small"></span>
     </div>
-
-    <table class="table table-striped align-middle">
-        <thead>
+    
+    <div style="max-height: 65vh; overflow-y: auto;">
+        <table class="table table-striped align-middle">
+            <thead>
             <tr>
                 <th style="width: 2rem;"><input type="checkbox" id="select-all" /></th>
                 <th>Name</th>
@@ -43,8 +44,8 @@
                 <th>Data Type</th>
                 <th>Description</th>
             </tr>
-        </thead>
-        <tbody>
+            </thead>
+            <tbody>
             @foreach (var attr in Model)
             {
                 <tr>
@@ -55,8 +56,9 @@
                     <td>@attr.Description</td>
                 </tr>
             }
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 </form>
 
 @section Scripts {

@@ -21,7 +21,7 @@
     </div>
     <div class="mb-3">
         <label class="form-label">Category</label>
-        <select name="CategoryId" class="form-select">
+        <select name="CategoryId" class="form-select" style="max-width: 400px;">
             @foreach (var c in categories)
             {
                 <option value="@c.Id" selected="@(c.Id == Model.CategoryId)">@c.Name</option>

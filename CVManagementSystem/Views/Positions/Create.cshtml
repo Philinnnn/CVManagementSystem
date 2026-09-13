@@ -28,11 +28,12 @@
 
     <h5 class="mt-4">Attributes</h5>
     <p class="text-muted small">Check attributes to include in this position's CV. Mark "Required" for the ones needed before a CV can be published.</p>
-    <table class="table table-sm">
-        <thead>
+    <div style="max-height: 400px; overflow-y: auto;">
+        <table class="table table-sm">
+            <thead>
             <tr><th>Include</th><th>Attribute</th><th>Category</th><th>Data Type</th><th>Required</th></tr>
-        </thead>
-        <tbody>
+            </thead>
+            <tbody>
             @foreach (var attr in allAttributes)
             {
                 <tr>
@@ -43,8 +44,9 @@
                     <td><input type="checkbox" name="RequiredAttributeIds" value="@attr.Id" /></td>
                 </tr>
             }
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 
     <h5 class="mt-4">Access Rules</h5>
     <p class="text-muted small">Leave empty for a public position. If you add rules, a candidate must satisfy <strong>all</strong> of them.</p>

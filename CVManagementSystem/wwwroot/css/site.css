@@ -208,3 +208,18 @@ a:hover {
   border-color: var(--line);
   color: var(--ink-soft);
 }
+
+.footer {
+  position: static !important;
+  width: auto !important;
+  line-height: normal !important;
+  padding: 1rem 0;
+}
+
+html {
+  min-height: auto;
+}
+
+body {
+  margin-bottom: 0;
+}
