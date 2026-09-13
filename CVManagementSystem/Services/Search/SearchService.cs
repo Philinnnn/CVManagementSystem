@@ -12,10 +12,8 @@ public class SearchService(AppDbContext db) : ISearchService
         if (string.IsNullOrWhiteSpace(query))
             return new SearchResultsDto();
 
-        var tsQuery = EF.Functions.PlainToTsQuery("english", query);
-
         var positions = await db.Positions
-            .Where(p => p.SearchVector.Matches(tsQuery))
+            .Where(p => p.SearchVector.Matches(EF.Functions.PlainToTsQuery("english", query)))
             .Select(p => new PositionListItemDto
             {
                 Id = p.Id,
@@ -29,7 +27,7 @@ public class SearchService(AppDbContext db) : ISearchService
             .ToListAsync();
 
         var candidates = await db.Users
-            .Where(u => u.SearchVector.Matches(tsQuery) && u.Candidate != null)
+            .Where(u => u.SearchVector.Matches(EF.Functions.PlainToTsQuery("english", query)) && u.Candidate != null)
             .Select(u => new CandidateSearchResultDto
             {
                 CandidateId = u.Candidate!.Id,
