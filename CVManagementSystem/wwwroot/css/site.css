@@ -223,3 +223,24 @@ html {
 body {
   margin-bottom: 0;
 }
+
+.field-empty {
+  border-left: 3px solid var(--danger);
+  padding-left: 0.75rem;
+}
+
+.form-switch .form-check-input {
+  background-color: var(--line);
+  border-color: var(--line);
+  width: 2.5em;
+}
+
+.form-switch .form-check-input:checked {
+  background-color: var(--pine);
+  border-color: var(--pine);
+}
+
+.form-switch .form-check-input:not(:checked) {
+  background-color: #8a8378;
+  border-color: #8a8378;
+}

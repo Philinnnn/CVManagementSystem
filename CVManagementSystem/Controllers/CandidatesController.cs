@@ -18,7 +18,7 @@ public class CandidatesController(
     ICvService cvService,
     IAttributeService attributeService) : Controller
 {
-    public async Task<IActionResult> Index(int? candidateId)
+    public async Task<IActionResult> Index(int? candidateId, string tab = "me")
     {
         var (targetId, canEdit) = await ResolveTargetAsync(candidateId);
         if (targetId is null)
@@ -44,12 +44,13 @@ public class CandidatesController(
 
         ViewBag.CanEdit = canEdit;
         ViewBag.CandidateId = targetId.Value;
+        ViewBag.ActiveTab = tab;
         return View(vm);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> SaveProfile(int candidateId, int expectedVersion)
+    public async Task<IActionResult> SaveProfile(int candidateId, int expectedVersion, string tab)
     {
         if (!await CanEditAsync(candidateId))
             return Forbid();
@@ -73,7 +74,7 @@ public class CandidatesController(
         if (!result.Success)
             TempData["Error"] = result.Error;
 
-        return RedirectToAction(nameof(Index), new { candidateId });
+        return RedirectToAction(nameof(Index), new { candidateId, tab });
     }
 
     [HttpPost]
@@ -87,21 +88,24 @@ public class CandidatesController(
         if (!result.Success)
             TempData["Error"] = result.Error;
 
-        return RedirectToAction(nameof(Index), new { candidateId });
+        return RedirectToAction(nameof(Index), new { candidateId, tab = "info" });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> RemoveAttribute(int candidateId, int attributeId)
+    public async Task<IActionResult> RemoveAttributes(int candidateId, int[] attributeIds)
     {
         if (!await CanEditAsync(candidateId))
             return Forbid();
 
-        var result = await profileService.RemoveAttributeAsync(candidateId, attributeId);
-        if (!result.Success)
-            TempData["Error"] = result.Error;
+        foreach (var attributeId in attributeIds)
+        {
+            var result = await profileService.RemoveAttributeAsync(candidateId, attributeId);
+            if (!result.Success)
+                TempData["Error"] = result.Error;
+        }
 
-        return RedirectToAction(nameof(Index), new { candidateId });
+        return RedirectToAction(nameof(Index), new { candidateId, tab = "info" });
     }
 
     [HttpPost]
@@ -115,7 +119,7 @@ public class CandidatesController(
         if (!result.Success)
             TempData["Error"] = result.Error;
 
-        return RedirectToAction(nameof(Index), new { candidateId });
+        return RedirectToAction(nameof(Index), new { candidateId, tab = "projects" });
     }
 
     [HttpPost]
@@ -129,7 +133,7 @@ public class CandidatesController(
         if (!result.Success)
             TempData["Error"] = result.Error;
 
-        return RedirectToAction(nameof(Index), new { candidateId });
+        return RedirectToAction(nameof(Index), new { candidateId, tab = "projects" });
     }
 
     [HttpPost]
@@ -140,7 +144,7 @@ public class CandidatesController(
             return Forbid();
 
         await projectService.DeleteAsync(candidateId, projectId);
-        return RedirectToAction(nameof(Index), new { candidateId });
+        return RedirectToAction(nameof(Index), new { candidateId, tab = "projects" });
     }
 
     [HttpGet]

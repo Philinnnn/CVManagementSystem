@@ -4,6 +4,7 @@
     ViewData["Title"] = "Profile";
     var canEdit = (bool)ViewBag.CanEdit;
     var candidateId = (int)ViewBag.CandidateId;
+    var activeTab = (string)ViewBag.ActiveTab;
     var availableAttributes = canEdit ? (List<AttributeDto>)ViewBag.AvailableAttributes : [];
 }
 
@@ -15,22 +16,24 @@
 }
 
 <ul class="nav nav-tabs" role="tablist">
-    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-me">Me</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-info">Info</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-projects">Projects</button></li>
-    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-cvs">CVs</button></li>
+    <li class="nav-item"><button class="nav-link @(activeTab == "me" ? "active" : "")" data-bs-toggle="tab" data-bs-target="#tab-me">Me</button></li>
+    <li class="nav-item"><button class="nav-link @(activeTab == "info" ? "active" : "")" data-bs-toggle="tab" data-bs-target="#tab-info">Info</button></li>
+    <li class="nav-item"><button class="nav-link @(activeTab == "projects" ? "active" : "")" data-bs-toggle="tab" data-bs-target="#tab-projects">Projects</button></li>
+    <li class="nav-item"><button class="nav-link @(activeTab == "cvs" ? "active" : "")" data-bs-toggle="tab" data-bs-target="#tab-cvs">CVs</button></li>
 </ul>
 
 <div class="tab-content pt-3">
-    <div class="tab-pane fade show active" id="tab-me">
+    <div class="tab-pane fade @(activeTab == "me" ? "show active" : "")" id="tab-me">
         <form asp-action="SaveProfile" method="post">
             <input type="hidden" name="candidateId" value="@candidateId" />
             <input type="hidden" name="expectedVersion" value="@Model.Profile.Version" />
+            <input type="hidden" name="tab" value="me" />
+
             @foreach (var attr in Model.Profile.MeAttributes)
             {
-                <div class="mb-3 @(attr.IsEmpty ? "border border-danger rounded p-2" : "")">
+                <div class="mb-3 field-row @(attr.IsEmpty ? "field-empty" : "")">
                     <label class="form-label">@attr.AttributeName</label>
-                    @if (canEdit) { @RenderInput(attr) } else { @RenderReadOnly(attr) }
+                    @if (canEdit) { @Html.Raw(RenderInput(attr)) } else { @Html.Raw(RenderReadOnly(attr)) }
                 </div>
             }
             @if (canEdit)
@@ -40,28 +43,47 @@
         </form>
     </div>
 
-    <div class="tab-pane fade" id="tab-info">
-        <form asp-action="SaveProfile" method="post">
+    <div class="tab-pane fade @(activeTab == "info" ? "show active" : "")" id="tab-info">
+        <form asp-action="SaveProfile" method="post" id="info-form">
             <input type="hidden" name="candidateId" value="@candidateId" />
             <input type="hidden" name="expectedVersion" value="@Model.Profile.Version" />
-            @foreach (var attr in Model.Profile.InfoAttributes)
+            <input type="hidden" name="tab" value="info" />
+
+            @if (canEdit && Model.Profile.InfoAttributes.Count > 0)
             {
-                <div class="mb-3 @(attr.IsEmpty ? "border border-danger rounded p-2" : "")">
-                    <div class="d-flex justify-content-between">
-                        <label class="form-label">@attr.AttributeName</label>
-                        @if (canEdit)
-                        {
-                            <button type="submit" formaction="@Url.Action("RemoveAttribute")" formmethod="post"
-                                    name="attributeId" value="@attr.AttributeId" class="btn btn-sm btn-link text-danger p-0">Remove</button>
-                        }
-                    </div>
-                    @if (canEdit) { @RenderInput(attr) } else { @RenderReadOnly(attr) }
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <button type="button" id="remove-attrs-btn" class="btn btn-sm btn-outline-danger" disabled
+                            formaction="@Url.Action("RemoveAttributes")" form="remove-attrs-form">
+                        Remove selected
+                    </button>
+                    <span id="attrs-selection-count" class="text-muted small"></span>
                 </div>
             }
+
+            @foreach (var attr in Model.Profile.InfoAttributes)
+            {
+                <div class="mb-3 field-row @(attr.IsEmpty ? "field-empty" : "")">
+                    <div class="d-flex align-items-center gap-2">
+                        @if (canEdit)
+                        {
+                            <input type="checkbox" class="attr-check" value="@attr.AttributeId" />
+                        }
+                        <label class="form-label mb-0">@attr.AttributeName</label>
+                    </div>
+                    <div class="mt-1">
+                        @if (canEdit) { @Html.Raw(RenderInput(attr)) } else { @Html.Raw(RenderReadOnly(attr)) }
+                    </div>
+                </div>
+            }
+
             @if (canEdit)
             {
                 <button type="submit" class="btn btn-primary">Save</button>
             }
+        </form>
+
+        <form asp-action="RemoveAttributes" method="post" id="remove-attrs-form">
+            <input type="hidden" name="candidateId" value="@candidateId" />
         </form>
 
         @if (canEdit)
@@ -69,7 +91,7 @@
             <hr />
             <form asp-action="AddAttribute" method="post" class="d-flex gap-2">
                 <input type="hidden" name="candidateId" value="@candidateId" />
-                <select name="attributeId" class="form-select">
+                <select name="attributeId" class="form-select" style="max-width: 400px;">
                     @foreach (var a in availableAttributes)
                     {
                         <option value="@a.Id">@a.Name (@a.CategoryName)</option>
@@ -80,7 +102,7 @@
         }
     </div>
 
-    <div class="tab-pane fade" id="tab-projects">
+    <div class="tab-pane fade @(activeTab == "projects" ? "show active" : "")" id="tab-projects">
         @foreach (var p in Model.Projects)
         {
             <div class="card mb-2">
@@ -121,7 +143,7 @@
         }
     </div>
 
-    <div class="tab-pane fade" id="tab-cvs">
+    <div class="tab-pane fade @(activeTab == "cvs" ? "show active" : "")" id="tab-cvs">
         <table class="table table-striped">
             <thead><tr><th>Position</th><th>Status</th><th>Likes</th></tr></thead>
             <tbody>
@@ -138,32 +160,67 @@
     </div>
 </div>
 
+@section Scripts {
+    <script>
+        const checks = document.querySelectorAll('.attr-check');
+        const removeBtn = document.getElementById('remove-attrs-btn');
+        const countLabel = document.getElementById('attrs-selection-count');
+        const removeForm = document.getElementById('remove-attrs-form');
+
+        function updateToolbar() {
+            const checked = Array.from(document.querySelectorAll('.attr-check:checked'));
+            if (removeBtn) removeBtn.disabled = checked.length === 0;
+            if (countLabel) countLabel.textContent = checked.length > 0 ? checked.length + ' selected' : '';
+
+            removeForm.querySelectorAll('input[name="attributeIds"]').forEach(el => el.remove());
+            checked.forEach(cb => {
+                const hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = 'attributeIds';
+                hidden.value = cb.value;
+                removeForm.appendChild(hidden);
+            });
+        }
+
+        checks.forEach(cb => cb.addEventListener('change', updateToolbar));
+    </script>
+}
+
 @functions {
-    private Microsoft.AspNetCore.Html.IHtmlContent RenderInput(AttributeValueDto attr)
+    private string RenderInput(AttributeValueDto attr)
     {
         var key = $"attr_{attr.AttributeId}";
         return attr.DataType switch
         {
-            "String" => new Microsoft.AspNetCore.Html.HtmlString($"<input type=\"text\" name=\"{key}\" value=\"{System.Net.WebUtility.HtmlEncode(attr.TextValue)}\" class=\"form-control\" />"),
-            "Text" => new Microsoft.AspNetCore.Html.HtmlString($"<textarea name=\"{key}\" class=\"form-control\" rows=\"4\">{System.Net.WebUtility.HtmlEncode(attr.TextValue)}</textarea>"),
-            "Image" => new Microsoft.AspNetCore.Html.HtmlString($"<input type=\"text\" name=\"{key}\" value=\"{System.Net.WebUtility.HtmlEncode(attr.TextValue)}\" class=\"form-control\" placeholder=\"Image URL\" />"),
-            "Numeric" => new Microsoft.AspNetCore.Html.HtmlString($"<input type=\"number\" step=\"any\" name=\"{key}\" value=\"{attr.NumericValue}\" class=\"form-control\" />"),
-            "Date" => new Microsoft.AspNetCore.Html.HtmlString($"<input type=\"date\" name=\"{key}\" value=\"{attr.DateValue:yyyy-MM-dd}\" class=\"form-control\" />"),
-            "Boolean" => new Microsoft.AspNetCore.Html.HtmlString($"<input type=\"checkbox\" name=\"{key}\" {(attr.BooleanValue == true ? "checked" : "")} />"),
-            "Period" => new Microsoft.AspNetCore.Html.HtmlString($"<div class=\"d-flex gap-2\"><input type=\"date\" name=\"{key}_start\" value=\"{attr.DateRangeStart:yyyy-MM-dd}\" class=\"form-control\" /><input type=\"date\" name=\"{key}_end\" value=\"{attr.DateRangeEnd:yyyy-MM-dd}\" class=\"form-control\" /></div>"),
+            "String" => $"<input type=\"text\" name=\"{key}\" value=\"{System.Net.WebUtility.HtmlEncode(attr.TextValue)}\" class=\"form-control\" />",
+            "Text" => $"<textarea name=\"{key}\" class=\"form-control\" rows=\"4\">{System.Net.WebUtility.HtmlEncode(attr.TextValue)}</textarea>",
+            "Image" => $"<input type=\"text\" name=\"{key}\" value=\"{System.Net.WebUtility.HtmlEncode(attr.TextValue)}\" class=\"form-control\" placeholder=\"Image URL\" />",
+            "Numeric" => $"<input type=\"number\" step=\"any\" name=\"{key}\" value=\"{attr.NumericValue}\" class=\"form-control\" />",
+            "Date" => $"<input type=\"date\" name=\"{key}\" value=\"{attr.DateValue:yyyy-MM-dd}\" class=\"form-control\" />",
+            "Boolean" => RenderBooleanToggle(attr, key),
+            "Period" => $"<div class=\"d-flex gap-2 align-items-center\"><input type=\"date\" name=\"{key}_start\" value=\"{attr.DateRangeStart:yyyy-MM-dd}\" class=\"form-control\" /><span class=\"text-muted\">to</span><input type=\"date\" name=\"{key}_end\" value=\"{attr.DateRangeEnd:yyyy-MM-dd}\" class=\"form-control\" /></div>",
             "Select" => RenderSelect(attr, key),
-            _ => new Microsoft.AspNetCore.Html.HtmlString("")
+            _ => ""
         };
     }
 
-    private Microsoft.AspNetCore.Html.IHtmlContent RenderSelect(AttributeValueDto attr, string key)
+    private string RenderBooleanToggle(AttributeValueDto attr, string key)
+    {
+        var isChecked = attr.BooleanValue == true;
+        return $@"
+        <div class=""form-check form-switch"">
+            <input type=""checkbox"" name=""{key}"" class=""form-check-input"" role=""switch"" {(isChecked ? "checked" : "")} />
+        </div>";
+    }
+
+    private string RenderSelect(AttributeValueDto attr, string key)
     {
         var options = string.Join("", attr.SelectOptions.Select(o =>
             $"<option value=\"{System.Net.WebUtility.HtmlEncode(o)}\" {(o == attr.TextValue ? "selected" : "")}>{System.Net.WebUtility.HtmlEncode(o)}</option>"));
-        return new Microsoft.AspNetCore.Html.HtmlString($"<select name=\"{key}\" class=\"form-select\"><option value=\"\">--</option>{options}</select>");
+        return $"<select name=\"{key}\" class=\"form-select\" style=\"max-width: 400px;\"><option value=\"\">--</option>{options}</select>";
     }
 
-    private Microsoft.AspNetCore.Html.IHtmlContent RenderReadOnly(AttributeValueDto attr)
+    private string RenderReadOnly(AttributeValueDto attr)
     {
         var display = attr.DataType switch
         {
@@ -173,8 +230,6 @@
             "Numeric" => attr.NumericValue?.ToString() ?? "",
             _ => attr.TextValue ?? ""
         };
-        return attr.IsEmpty
-            ? new Microsoft.AspNetCore.Html.HtmlString("<em>empty</em>")
-            : new Microsoft.AspNetCore.Html.HtmlString(System.Net.WebUtility.HtmlEncode(display));
+        return attr.IsEmpty ? "<em>empty</em>" : System.Net.WebUtility.HtmlEncode(display);
     }
 }
