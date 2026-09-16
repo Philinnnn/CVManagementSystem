@@ -33,6 +33,15 @@ public class AuthService(AppDbContext db, IPasswordHasher<User> hasher) : IAuthS
         user.Passhash = hasher.HashPassword(user, password);
         user.UserRoles.Add(new UserRole { Role = candidateRole });
         user.Candidate = new Candidate();
+        var builtInAttributeIds = await db.Attributes
+            .Where(a => a.IsBuiltIn)
+            .Select(a => a.Id)
+            .ToListAsync();
+
+        foreach (var attributeId in builtInAttributeIds)
+        {
+            user.Candidate.AttributeValues.Add(new CandidateAttributeValue { AttributeId = attributeId });
+        }
 
         db.Users.Add(user);
         await db.SaveChangesAsync();
