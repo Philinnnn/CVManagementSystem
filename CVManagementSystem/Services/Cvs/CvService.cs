@@ -147,10 +147,10 @@ public class CvService(AppDbContext db, IPositionService positionService) : ICvS
 
         cvValue.TextValue = request.TextValue;
         cvValue.NumericValue = request.NumericValue;
-        cvValue.DateValue = request.DateValue;
+        cvValue.DateValue = request.DateValue.AsUtc();
         cvValue.BooleanValue = request.BooleanValue;
-        cvValue.DateRangeStart = request.DateRangeStart;
-        cvValue.DateRangeEnd = request.DateRangeEnd;
+        cvValue.DateRangeStart = request.DateRangeStart.AsUtc();
+        cvValue.DateRangeEnd = request.DateRangeEnd.AsUtc();
         
         var profileValue = await db.CandidateAttributeValues
             .FirstOrDefaultAsync(v => v.CandidateId == cv.CandidateId && v.AttributeId == request.AttributeId);
@@ -163,10 +163,10 @@ public class CvService(AppDbContext db, IPositionService positionService) : ICvS
 
         profileValue.TextValue = request.TextValue;
         profileValue.NumericValue = request.NumericValue;
-        profileValue.DateValue = request.DateValue;
+        profileValue.DateValue = request.DateValue.AsUtc();
         profileValue.BooleanValue = request.BooleanValue;
-        profileValue.DateRangeStart = request.DateRangeStart;
-        profileValue.DateRangeEnd = request.DateRangeEnd;
+        profileValue.DateRangeStart = request.DateRangeStart.AsUtc();
+        profileValue.DateRangeEnd = request.DateRangeEnd.AsUtc();
         
         var candidate = await db.Candidates.FirstOrDefaultAsync(c => c.Id == cv.CandidateId);
         if (candidate is not null)

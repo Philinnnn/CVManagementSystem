@@ -27,8 +27,8 @@ public class ProjectService(AppDbContext db) : IProjectService
             CandidateId = candidateId,
             Name = request.Name.Trim(),
             Description = request.Description,
-            StartDate = request.StartDate,
-            EndDate = request.EndDate
+            StartDate = request.StartDate.AsUtc(),
+            EndDate = request.EndDate.AsUtc()
         };
 
         await ApplyTagsAsync(project, request.Tags);
@@ -55,8 +55,8 @@ public class ProjectService(AppDbContext db) : IProjectService
 
         project.Name = request.Name.Trim();
         project.Description = request.Description;
-        project.StartDate = request.StartDate;
-        project.EndDate = request.EndDate;
+        project.StartDate = request.StartDate.AsUtc();
+        project.EndDate = request.EndDate.AsUtc();
 
         db.ProjectTags.RemoveRange(project.ProjectTags);
         project.ProjectTags.Clear();

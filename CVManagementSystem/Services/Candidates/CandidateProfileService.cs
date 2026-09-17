@@ -91,10 +91,10 @@ public class CandidateProfileService(AppDbContext db) : ICandidateProfileService
 
             value.TextValue = input.TextValue;
             value.NumericValue = input.NumericValue;
-            value.DateValue = input.DateValue;
             value.BooleanValue = input.BooleanValue;
-            value.DateRangeStart = input.DateRangeStart;
-            value.DateRangeEnd = input.DateRangeEnd;
+            value.DateValue = input.DateValue.AsUtc();
+            value.DateRangeStart = input.DateRangeStart.AsUtc();
+            value.DateRangeEnd = input.DateRangeEnd.AsUtc();
         }
 
         candidate.Version++;
