@@ -1,22 +1,22 @@
 @model CVManagementSystem.Models.ViewModels.LoginViewModel
 @{
-    ViewData["Title"] = "Login";
+    ViewData["Title"] = Loc["account.login.title"];
 }
 
-<h2>Login</h2>
+<h2>@Loc["account.login.title"]</h2>
 <div asp-validation-summary="All" class="text-danger"></div>
 
 <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
     <div class="mb-3">
-        <label asp-for="Login" class="form-label"></label>
+        <label class="form-label">@Loc["account.login.loginLabel"]</label>
         <input asp-for="Login" class="form-control" />
         <span asp-validation-for="Login" class="text-danger"></span>
     </div>
     <div class="mb-3">
-        <label asp-for="Password" class="form-label"></label>
+        <label class="form-label">@Loc["account.login.passwordLabel"]</label>
         <input asp-for="Password" class="form-control" />
         <span asp-validation-for="Password" class="text-danger"></span>
     </div>
-    <button type="submit" class="btn btn-primary">Login</button>
-    <a asp-action="Register" class="btn btn-link">Register</a>
+    <button type="submit" class="btn btn-primary">@Loc["account.login.submit"]</button>
+    <a asp-action="Register" class="btn btn-link">@Loc["account.login.registerLink"]</a>
 </form>

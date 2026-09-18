@@ -1,14 +1,14 @@
 @model CandidateProfileViewModel
 @using CVManagementSystem.Services.Candidates.Dtos
 @{
-    ViewData["Title"] = "Profile";
+    ViewData["Title"] = Loc["candidates.profile.title"];
     var canEdit = (bool)ViewBag.CanEdit;
     var candidateId = (int)ViewBag.CandidateId;
     var activeTab = (string)ViewBag.ActiveTab;
     var availableAttributes = canEdit ? (List<AttributeDto>)ViewBag.AvailableAttributes : [];
 }
 
-<h2>Profile</h2>
+<h2>@Loc["candidates.profile.title"]</h2>
 
 @if (TempData["Error"] != null)
 {
@@ -16,13 +16,41 @@
 }
 
 <ul class="nav nav-tabs" role="tablist">
-    <li class="nav-item"><button class="nav-link @(activeTab == "me" ? "active" : "")" data-bs-toggle="tab" data-bs-target="#tab-me">Me</button></li>
-    <li class="nav-item"><button class="nav-link @(activeTab == "info" ? "active" : "")" data-bs-toggle="tab" data-bs-target="#tab-info">Info</button></li>
-    <li class="nav-item"><button class="nav-link @(activeTab == "projects" ? "active" : "")" data-bs-toggle="tab" data-bs-target="#tab-projects">Projects</button></li>
-    <li class="nav-item"><button class="nav-link @(activeTab == "cvs" ? "active" : "")" data-bs-toggle="tab" data-bs-target="#tab-cvs">CVs</button></li>
+    <li class="nav-item">
+        <button class="nav-link @(activeTab == "me" ? "active" : "")"
+                data-bs-toggle="tab"
+                data-bs-target="#tab-me">
+            @Loc["candidates.profile.me"]
+        </button>
+    </li>
+
+    <li class="nav-item">
+        <button class="nav-link @(activeTab == "info" ? "active" : "")"
+                data-bs-toggle="tab"
+                data-bs-target="#tab-info">
+            @Loc["candidates.profile.info"]
+        </button>
+    </li>
+
+    <li class="nav-item">
+        <button class="nav-link @(activeTab == "projects" ? "active" : "")"
+                data-bs-toggle="tab"
+                data-bs-target="#tab-projects">
+            @Loc["candidates.profile.projects"]
+        </button>
+    </li>
+
+    <li class="nav-item">
+        <button class="nav-link @(activeTab == "cvs" ? "active" : "")"
+                data-bs-toggle="tab"
+                data-bs-target="#tab-cvs">
+            @Loc["candidates.profile.cvs"]
+        </button>
+    </li>
 </ul>
 
 <div class="tab-content pt-3">
+
     <div class="tab-pane fade @(activeTab == "me" ? "show active" : "")" id="tab-me">
         <form asp-action="SaveProfile" method="post">
             <input type="hidden" name="candidateId" value="@candidateId" />
@@ -32,16 +60,41 @@
             @foreach (var attr in Model.Profile.MeAttributes)
             {
                 <div class="mb-3 field-row @(attr.IsEmpty ? "field-empty" : "")">
-                    <label class="form-label">@attr.AttributeName</label>
-                    @if (canEdit) { @Html.Raw(RenderInput(attr)) } else { @Html.Raw(RenderReadOnly(attr)) }
+                    <label class="form-label">
+                        @(attr.AttributeName switch
+                        {
+                            "First Name" => Loc["candidates.profile.firstName"],
+                            "Last Name" => Loc["candidates.profile.lastName"],
+                            "Location" => Loc["candidates.profile.location"],
+                            "Photo" => Loc["candidates.profile.photo"],
+                            _ => attr.AttributeName
+                        })
+                    </label>
+
+                    @if (canEdit)
+                    {
+                        @Html.Raw(RenderInput(attr, Loc["candidates.profile.uploadImage"], Loc["candidates.profile.to"]))
+                    }
+                    else
+                    {
+                        @Html.Raw(RenderReadOnly(
+                            attr,
+                            Loc["candidates.profile.yes"],
+                            Loc["candidates.profile.no"],
+                            Loc["candidates.profile.empty"]))
+                    }
                 </div>
             }
+
             @if (canEdit)
             {
-                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="submit" class="btn btn-primary">
+                    @Loc["candidates.profile.save"]
+                </button>
             }
         </form>
     </div>
+
 
     <div class="tab-pane fade @(activeTab == "info" ? "show active" : "")" id="tab-info">
         <form asp-action="SaveProfile" method="post" id="info-form">
@@ -52,10 +105,15 @@
             @if (canEdit && Model.Profile.InfoAttributes.Count > 0)
             {
                 <div class="d-flex align-items-center gap-2 mb-2">
-                    <button type="button" id="remove-attrs-btn" class="btn btn-sm btn-outline-danger" disabled
-                            formaction="@Url.Action("RemoveAttributes")" form="remove-attrs-form">
-                        Remove selected
+                    <button type="button"
+                            id="remove-attrs-btn"
+                            class="btn btn-sm btn-outline-danger"
+                            disabled
+                            formaction="@Url.Action("RemoveAttributes")"
+                            form="remove-attrs-form">
+                        @Loc["candidates.profile.removeSelected"]
                     </button>
+
                     <span id="attrs-selection-count" class="text-muted small"></span>
                 </div>
             }
@@ -66,19 +124,36 @@
                     <div class="d-flex align-items-center gap-2">
                         @if (canEdit)
                         {
-                            <input type="checkbox" class="attr-check" value="@attr.AttributeId" />
+                            <input type="checkbox"
+                                   class="attr-check"
+                                   value="@attr.AttributeId" />
                         }
+
                         <label class="form-label mb-0">@attr.AttributeName</label>
                     </div>
+
                     <div class="mt-1">
-                        @if (canEdit) { @Html.Raw(RenderInput(attr)) } else { @Html.Raw(RenderReadOnly(attr)) }
+                        @if (canEdit)
+                        {
+                            @Html.Raw(RenderInput(attr, Loc["candidates.profile.uploadImage"], Loc["candidates.profile.to"]))
+                        }
+                        else
+                        {
+                            @Html.Raw(RenderReadOnly(
+                                attr,
+                                Loc["candidates.profile.yes"],
+                                Loc["candidates.profile.no"],
+                                Loc["candidates.profile.empty"]))
+                        }
                     </div>
                 </div>
             }
 
             @if (canEdit)
             {
-                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="submit" class="btn btn-primary">
+                    @Loc["candidates.profile.save"]
+                </button>
             }
         </form>
 
@@ -89,36 +164,63 @@
         @if (canEdit)
         {
             <hr />
+
             <form asp-action="AddAttribute" method="post" class="d-flex gap-2">
                 <input type="hidden" name="candidateId" value="@candidateId" />
-                <select name="attributeId" class="form-select" style="max-width: 400px;">
+
+                <select name="attributeId"
+                        class="form-select"
+                        style="max-width: 400px;">
                     @foreach (var a in availableAttributes)
                     {
-                        <option value="@a.Id">@a.Name (@a.CategoryName)</option>
+                        <option value="@a.Id">
+                            @a.Name (@a.CategoryName)
+                        </option>
                     }
                 </select>
-                <button type="submit" class="btn btn-outline-secondary">+ Add to profile</button>
+
+                <button type="submit" class="btn btn-outline-secondary">
+                    @Loc["candidates.profile.addToProfile"]
+                </button>
             </form>
         }
     </div>
 
+
     <div class="tab-pane fade @(activeTab == "projects" ? "show active" : "")" id="tab-projects">
+
         @foreach (var p in Model.Projects)
         {
             <div class="card mb-2">
                 <div class="card-body">
                     <h5>@p.Name</h5>
+
                     <p class="text-muted small">
-                        @(p.StartDate?.ToString("yyyy-MM")) — @(p.EndDate?.ToString("yyyy-MM") ?? "present")
-                        @if (p.Tags.Count > 0) { <text> · @string.Join(", ", p.Tags)</text> }
+                        @(p.StartDate?.ToString("yyyy-MM"))
+                        @Loc["candidates.profile.to"]
+                        @(p.EndDate?.ToString("yyyy-MM") ?? Loc["candidates.profile.present"])
+
+                        @if (p.Tags.Count > 0)
+                        {
+                            <text> · @string.Join(", ", p.Tags)</text>
+                        }
                     </p>
+
                     <p>@p.Description</p>
+
                     @if (canEdit)
                     {
-                        <form asp-action="DeleteProject" method="post" onsubmit="return confirm('Delete this project?');" class="d-inline">
+                        <form asp-action="DeleteProject"
+                              method="post"
+                              onsubmit="return confirm('@Loc["candidates.profile.deleteProjectConfirm"]');"
+                              class="d-inline">
+
                             <input type="hidden" name="candidateId" value="@candidateId" />
                             <input type="hidden" name="projectId" value="@p.Id" />
-                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                @Loc["candidates.profile.deleteProject"]
+                            </button>
                         </form>
                     }
                 </div>
@@ -128,29 +230,75 @@
         @if (canEdit)
         {
             <hr />
-            <h5>New project</h5>
+
+            <h5>@Loc["candidates.profile.newProject"]</h5>
+
             <form asp-action="CreateProject" method="post">
                 <input type="hidden" name="candidateId" value="@candidateId" />
-                <div class="mb-2"><input name="Name" class="form-control" placeholder="Name" /></div>
-                <div class="mb-2"><textarea name="Description" class="form-control" placeholder="Description (Markdown)"></textarea></div>
-                <div class="row g-2 mb-2">
-                    <div class="col"><input type="date" name="StartDate" class="form-control" /></div>
-                    <div class="col"><input type="date" name="EndDate" class="form-control" /></div>
+
+                <div class="mb-2">
+                    <input name="Name"
+                           class="form-control"
+                           placeholder="@Loc["candidates.profile.name"]" />
                 </div>
-                <div class="mb-2"><input name="Tags" class="form-control" placeholder="Tags, comma-separated" /></div>
-                <button type="submit" class="btn btn-primary">Add project</button>
+
+                <div class="mb-2">
+                    <textarea name="Description"
+                              class="form-control"
+                              placeholder="@Loc["candidates.profile.descriptionMarkdown"]"></textarea>
+                </div>
+
+                <div class="row g-2 mb-2">
+                    <div class="col">
+                        <input type="date"
+                               name="StartDate"
+                               class="form-control" />
+                    </div>
+
+                    <div class="col">
+                        <input type="date"
+                               name="EndDate"
+                               class="form-control" />
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <input name="Tags"
+                           class="form-control"
+                           placeholder="@Loc["candidates.profile.tags"]" />
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    @Loc["candidates.profile.addProject"]
+                </button>
             </form>
         }
     </div>
 
+
     <div class="tab-pane fade @(activeTab == "cvs" ? "show active" : "")" id="tab-cvs">
+
         <table class="table table-striped">
-            <thead><tr><th>Position</th><th>Status</th><th>Likes</th></tr></thead>
+            <thead>
+                <tr>
+                    <th>@Loc["candidates.profile.position"]</th>
+                    <th>@Loc["candidates.profile.status"]</th>
+                    <th>@Loc["candidates.profile.likes"]</th>
+                </tr>
+            </thead>
+
             <tbody>
                 @foreach (var cv in Model.Cvs)
                 {
                     <tr>
-                        <td><a asp-controller="Cvs" asp-action="Details" asp-route-id="@cv.Id">@cv.PositionName</a></td>
+                        <td>
+                            <a asp-controller="Cvs"
+                               asp-action="Details"
+                               asp-route-id="@cv.Id">
+                                @cv.PositionName
+                            </a>
+                        </td>
+
                         <td>@cv.Status</td>
                         <td>@cv.LikeCount</td>
                     </tr>
@@ -158,7 +306,9 @@
             </tbody>
         </table>
     </div>
+
 </div>
+
 
 @section Scripts {
     <script>
@@ -168,68 +318,151 @@
         const removeForm = document.getElementById('remove-attrs-form');
 
         function updateToolbar() {
-            const checked = Array.from(document.querySelectorAll('.attr-check:checked'));
-            if (removeBtn) removeBtn.disabled = checked.length === 0;
-            if (countLabel) countLabel.textContent = checked.length > 0 ? checked.length + ' selected' : '';
+            const checked = Array.from(
+                document.querySelectorAll('.attr-check:checked')
+            );
 
-            removeForm.querySelectorAll('input[name="attributeIds"]').forEach(el => el.remove());
+            if (removeBtn) {
+                removeBtn.disabled = checked.length === 0;
+            }
+
+            if (countLabel) {
+                countLabel.textContent =
+                    checked.length > 0
+                        ? checked.length + ' @Loc["candidates.profile.selected"]'
+                        : '';
+            }
+
+            removeForm
+                .querySelectorAll('input[name="attributeIds"]')
+                .forEach(el => el.remove());
+
             checked.forEach(cb => {
                 const hidden = document.createElement('input');
+
                 hidden.type = 'hidden';
                 hidden.name = 'attributeIds';
                 hidden.value = cb.value;
+
                 removeForm.appendChild(hidden);
             });
         }
 
-        checks.forEach(cb => cb.addEventListener('change', updateToolbar));
+        checks.forEach(cb =>
+            cb.addEventListener('change', updateToolbar)
+        );
     </script>
 }
 
+
 @functions {
-    private string RenderInput(AttributeValueDto attr)
+    private string RenderInput(
+        AttributeValueDto attr,
+        string uploadImageText,
+        string toText)
     {
         var key = $"attr_{attr.AttributeId}";
+
         return attr.DataType switch
         {
-            "String" => $"<input type=\"text\" name=\"{key}\" value=\"{System.Net.WebUtility.HtmlEncode(attr.TextValue)}\" class=\"form-control\" />",
-            "Text" => $"<textarea name=\"{key}\" class=\"form-control\" rows=\"4\">{System.Net.WebUtility.HtmlEncode(attr.TextValue)}</textarea>",
-            "Image" => $"<input type=\"text\" name=\"{key}\" value=\"{System.Net.WebUtility.HtmlEncode(attr.TextValue)}\" class=\"form-control\" placeholder=\"Image URL\" />",
-            "Numeric" => $"<input type=\"number\" step=\"any\" name=\"{key}\" value=\"{attr.NumericValue}\" class=\"form-control\" />",
-            "Date" => $"<input type=\"date\" name=\"{key}\" value=\"{attr.DateValue:yyyy-MM-dd}\" class=\"form-control\" />",
-            "Boolean" => RenderBooleanToggle(attr, key),
-            "Period" => $"<div class=\"d-flex gap-2 align-items-center\"><input type=\"date\" name=\"{key}_start\" value=\"{attr.DateRangeStart:yyyy-MM-dd}\" class=\"form-control\" /><span class=\"text-muted\">to</span><input type=\"date\" name=\"{key}_end\" value=\"{attr.DateRangeEnd:yyyy-MM-dd}\" class=\"form-control\" /></div>",
-            "Select" => RenderSelect(attr, key),
+            "String" =>
+                $"<input type=\"text\" name=\"{key}\" value=\"{System.Net.WebUtility.HtmlEncode(attr.TextValue)}\" class=\"form-control\" />",
+
+            "Text" =>
+                $"<textarea name=\"{key}\" class=\"form-control\" rows=\"4\">{System.Net.WebUtility.HtmlEncode(attr.TextValue)}</textarea>",
+
+            "Image" => $@"
+            <div class=""image-upload-widget"" data-attribute-id=""{attr.AttributeId}"">
+                <img src=""{System.Net.WebUtility.HtmlEncode(attr.TextValue)}""
+                     class=""img-thumbnail mb-2 d-block {(string.IsNullOrEmpty(attr.TextValue) ? "d-none" : "")}""
+                     style=""max-width:150px;"" />
+
+                <input type=""hidden""
+                       name=""{key}""
+                       value=""{System.Net.WebUtility.HtmlEncode(attr.TextValue)}""
+                       class=""image-url-input"" />
+
+                <button type=""button""
+                        class=""btn btn-sm btn-outline-secondary upload-image-btn"">
+                    {System.Net.WebUtility.HtmlEncode(uploadImageText)}
+                </button>
+            </div>",
+
+            "Numeric" =>
+                $"<input type=\"number\" step=\"any\" name=\"{key}\" value=\"{attr.NumericValue}\" class=\"form-control\" />",
+
+            "Date" =>
+                $"<input type=\"date\" name=\"{key}\" value=\"{attr.DateValue:yyyy-MM-dd}\" class=\"form-control\" />",
+
+            "Boolean" =>
+                RenderBooleanToggle(attr, key),
+
+            "Period" =>
+                $"<div class=\"d-flex gap-2 align-items-center\">" +
+                $"<input type=\"date\" name=\"{key}_start\" value=\"{attr.DateRangeStart:yyyy-MM-dd}\" class=\"form-control\" />" +
+                $"<span class=\"text-muted\">{System.Net.WebUtility.HtmlEncode(toText)}</span>" +
+                $"<input type=\"date\" name=\"{key}_end\" value=\"{attr.DateRangeEnd:yyyy-MM-dd}\" class=\"form-control\" /></div>",
+
+            "Select" =>
+                RenderSelect(attr, key),
+
             _ => ""
         };
     }
 
+
     private string RenderBooleanToggle(AttributeValueDto attr, string key)
     {
         var isChecked = attr.BooleanValue == true;
+
         return $@"
         <div class=""form-check form-switch"">
-            <input type=""checkbox"" name=""{key}"" class=""form-check-input"" role=""switch"" {(isChecked ? "checked" : "")} />
+            <input type=""checkbox""
+                   name=""{key}""
+                   class=""form-check-input""
+                   role=""switch""
+                   {(isChecked ? "checked" : "")} />
         </div>";
     }
 
+
     private string RenderSelect(AttributeValueDto attr, string key)
     {
-        var options = string.Join("", attr.SelectOptions.Select(o =>
-            $"<option value=\"{System.Net.WebUtility.HtmlEncode(o)}\" {(o == attr.TextValue ? "selected" : "")}>{System.Net.WebUtility.HtmlEncode(o)}</option>"));
-        return $"<select name=\"{key}\" class=\"form-select\" style=\"max-width: 400px;\"><option value=\"\">--</option>{options}</select>";
+        var options = string.Join(
+            "",
+            attr.SelectOptions.Select(o =>
+                $"<option value=\"{System.Net.WebUtility.HtmlEncode(o)}\" " +
+                $"{(o == attr.TextValue ? "selected" : "")}>" +
+                $"{System.Net.WebUtility.HtmlEncode(o)}</option>"
+            )
+        );
+
+        return $"<select name=\"{key}\" class=\"form-select\" style=\"max-width: 400px;\">" +
+               $"<option value=\"\">--</option>{options}</select>";
     }
 
-    private string RenderReadOnly(AttributeValueDto attr)
+
+    private string RenderReadOnly(
+        AttributeValueDto attr,
+        string yesText,
+        string noText,
+        string emptyText)
     {
         var display = attr.DataType switch
         {
-            "Boolean" => attr.BooleanValue == true ? "Yes" : "No",
-            "Period" => $"{attr.DateRangeStart:yyyy-MM-dd} — {attr.DateRangeEnd:yyyy-MM-dd}",
-            "Date" => attr.DateValue?.ToString("yyyy-MM-dd") ?? "",
-            "Numeric" => attr.NumericValue?.ToString() ?? "",
-            _ => attr.TextValue ?? ""
+            "Boolean" => attr.BooleanValue == true ? yesText : noText,
+            "Period" =>
+                $"{attr.DateRangeStart:yyyy-MM-dd} — {attr.DateRangeEnd:yyyy-MM-dd}",
+            "Date" =>
+                attr.DateValue?.ToString("yyyy-MM-dd") ?? "",
+            "Numeric" =>
+                attr.NumericValue?.ToString() ?? "",
+            _ =>
+                attr.TextValue ?? ""
         };
-        return attr.IsEmpty ? "<em>empty</em>" : System.Net.WebUtility.HtmlEncode(display);
+
+        return attr.IsEmpty
+            ? $"<em>{System.Net.WebUtility.HtmlEncode(emptyText)}</em>"
+            : System.Net.WebUtility.HtmlEncode(display);
     }
 }

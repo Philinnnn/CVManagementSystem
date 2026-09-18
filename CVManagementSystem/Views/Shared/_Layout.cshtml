@@ -28,19 +28,19 @@
 
             <div class="collapse navbar-collapse" id="mainNav">
                 <ul class="navbar-nav me-auto gap-1">
-                    <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" asp-controller="Positions" asp-action="Index">Positions</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">@Loc["nav.home"]</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-controller="Positions" asp-action="Index">@Loc["nav.positions"]</a></li>
                     @if (User.IsInRole("Recruiter") || User.IsInRole("Administrator"))
                     {
-                        <li class="nav-item"><a class="nav-link" asp-controller="Attributes" asp-action="Index">Attributes</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Attributes" asp-action="Index">@Loc["nav.attributes"]</a></li>
                     }
                     @if (User.IsInRole("Candidate"))
                     {
-                        <li class="nav-item"><a class="nav-link" asp-controller="Candidates" asp-action="Index">My Profile</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Candidates" asp-action="Index">@Loc["nav.myProfile"]</a></li>
                     }
                     @if (User.IsInRole("Administrator"))
                     {
-                        <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Index">Users</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Index">@Loc["nav.users"]</a></li>
                     }
                 </ul>
 
@@ -50,7 +50,7 @@
                         <form asp-controller="Search" asp-action="Index" method="get" role="search">
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text bg-transparent"><i class="bi bi-search"></i></span>
-                                <input type="text" name="q" class="form-control" placeholder="Search positions, candidates..." style="width: 220px;"/>
+                                <input type="text" name="q" class="form-control" placeholder="@Loc["nav.search.placeholder"]" style="width: 220px;"/>
                             </div>
                         </form>
                     }
@@ -93,12 +93,12 @@
                                 <span class="d-none d-md-inline">@User.Identity.Name</span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><h6 class="dropdown-header">Signed in as @User.Identity.Name</h6></li>
+                                <li><h6 class="dropdown-header">@Loc["nav.signedInAs"] @User.Identity.Name</h6></li>
                                 <li><hr class="dropdown-divider"/></li>
                                 <li>
                                     <form asp-controller="Account" asp-action="Logout" method="post">
                                         <button type="submit" class="dropdown-item">
-                                            <i class="bi bi-box-arrow-right me-2"></i>Logout
+                                            <i class="bi bi-box-arrow-right me-2"></i>@Loc["nav.logout"]
                                         </button>
                                     </form>
                                 </li>
@@ -107,8 +107,8 @@
                     }
                     else
                     {
-                        <a asp-controller="Account" asp-action="Login" class="btn btn-sm btn-outline-secondary">Log in</a>
-                        <a asp-controller="Account" asp-action="Register" class="btn btn-sm btn-primary">Register</a>
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-sm btn-outline-secondary">@Loc["nav.login"]</a>
+                        <a asp-controller="Account" asp-action="Register" class="btn btn-sm btn-primary">@Loc["nav.register"]</a>
                     }
                 </div>
             </div>

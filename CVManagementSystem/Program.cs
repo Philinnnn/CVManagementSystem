@@ -9,6 +9,7 @@ using CVManagementSystem.Services.Candidates;
 using CVManagementSystem.Services.Cvs;
 using CVManagementSystem.Services.Dashboard;
 using CVManagementSystem.Services.Discussions;
+using CVManagementSystem.Services.Localization;
 using CVManagementSystem.Services.Positions;
 using CVManagementSystem.Services.Search;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -36,6 +37,7 @@ builder.Services.AddSignalR();
 builder.Services.AddScoped<IUserAdminService, UserAdminService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<ISearchService, SearchService>();
+builder.Services.AddSingleton<IAppLocalizer, JsonAppLocalizer>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -50,7 +52,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddLocalization();
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
-    var supportedCultures = new[] { "en", "ru" };
+    string[] supportedCultures = ["en", "ru"];
     options.SetDefaultCulture(supportedCultures[0]);
     options.AddSupportedCultures(supportedCultures);
     options.AddSupportedUICultures(supportedCultures);

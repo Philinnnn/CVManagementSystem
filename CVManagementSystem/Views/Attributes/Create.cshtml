@@ -1,24 +1,26 @@
 @model CVManagementSystem.Services.Attributes.Dtos.CreateAttributeRequest
 @{
-    ViewData["Title"] = "New Attribute";
+    ViewData["Title"] = Loc["attributes.create.title"];
     var categories = (List<CategoryDto>)ViewBag.Categories;
     var dataTypes = (IReadOnlyCollection<string>)ViewBag.DataTypes;
 }
 
-<h2>New Attribute</h2>
+<h2>@Loc["attributes.create.title"]</h2>
 <div asp-validation-summary="All" class="text-danger"></div>
 
 <form asp-action="Create" method="post">
     <div class="mb-3">
-        <label class="form-label">Name</label>
+        <label class="form-label">@Loc["attributes.create.name"]</label>
         <input asp-for="Name" class="form-control" />
     </div>
+
     <div class="mb-3">
-        <label class="form-label">Description</label>
+        <label class="form-label">@Loc["attributes.create.description"]</label>
         <textarea asp-for="Description" class="form-control"></textarea>
     </div>
+
     <div class="mb-3">
-        <label class="form-label">Category</label>
+        <label class="form-label">@Loc["attributes.create.category"]</label>
         <select asp-for="CategoryId" class="form-select" style="max-width: 400px;">
             @foreach (var c in categories)
             {
@@ -26,8 +28,9 @@
             }
         </select>
     </div>
+
     <div class="mb-3">
-        <label class="form-label">Data Type</label>
+        <label class="form-label">@Loc["attributes.create.dataType"]</label>
         <select asp-for="DataType" class="form-select" style="max-width: 400px;">
             @foreach (var dt in dataTypes)
             {
@@ -35,17 +38,34 @@
             }
         </select>
     </div>
+
     <div class="mb-3">
-        <label class="form-label">Dropdown options (one per line, only used if Data Type is Select)</label>
+        <label class="form-label">
+            @Loc["attributes.create.dropdownOptions"]
+        </label>
         <textarea name="selectOptionsRaw" class="form-control" rows="4"></textarea>
     </div>
-    <button type="submit" class="btn btn-primary">Create</button>
-    <a asp-action="Index" class="btn btn-link">Cancel</a>
+
+    <button type="submit" class="btn btn-primary">
+        @Loc["attributes.create.create"]
+    </button>
+
+    <a asp-action="Index" class="btn btn-link">
+        @Loc["attributes.create.cancel"]
+    </a>
 </form>
 
 <hr />
-<h5>Quick-add category</h5>
+
+<h5>@Loc["attributes.create.quickAddCategory"]</h5>
+
 <form asp-action="CreateCategory" method="post" class="d-flex gap-2">
-    <input type="text" name="name" class="form-control" placeholder="New category name" />
-    <button type="submit" class="btn btn-outline-secondary">Add</button>
+    <input type="text"
+           name="name"
+           class="form-control"
+           placeholder="@Loc["attributes.create.newCategoryName"]" />
+
+    <button type="submit" class="btn btn-outline-secondary">
+        @Loc["attributes.create.add"]
+    </button>
 </form>

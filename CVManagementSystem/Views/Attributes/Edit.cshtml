@@ -1,10 +1,10 @@
 @model CVManagementSystem.Services.Attributes.Dtos.AttributeDto
 @{
-    ViewData["Title"] = "Edit Attribute";
+    ViewData["Title"] = Loc["attributes.edit.title"];
     var categories = (List<CategoryDto>)ViewBag.Categories;
 }
 
-<h2>Edit Attribute</h2>
+<h2>@Loc["attributes.edit.title"]</h2>
 <div asp-validation-summary="All" class="text-danger"></div>
 
 <form asp-action="Edit" method="post">
@@ -12,38 +12,60 @@
     <input type="hidden" name="Version" value="@Model.Version" />
 
     <div class="mb-3">
-        <label class="form-label">Name</label>
+        <label class="form-label">@Loc["attributes.edit.name"]</label>
         <input name="Name" value="@Model.Name" class="form-control" />
     </div>
+
     <div class="mb-3">
-        <label class="form-label">Description</label>
+        <label class="form-label">@Loc["attributes.edit.description"]</label>
         <textarea name="Description" class="form-control">@Model.Description</textarea>
     </div>
+
     <div class="mb-3">
-        <label class="form-label">Category</label>
+        <label class="form-label">@Loc["attributes.edit.category"]</label>
         <select name="CategoryId" class="form-select" style="max-width: 400px;">
             @foreach (var c in categories)
             {
-                <option value="@c.Id" selected="@(c.Id == Model.CategoryId)">@c.Name</option>
+                <option value="@c.Id" selected="@(c.Id == Model.CategoryId)">
+                    @c.Name
+                </option>
             }
         </select>
     </div>
+
     <div class="mb-3">
-        <label class="form-label">Data type: @Model.DataType (cannot be changed)</label>
+        <label class="form-label">
+            @Loc["attributes.edit.dataType"] @Model.DataType
+            @Loc["attributes.edit.dataTypeCannotChange"]
+        </label>
     </div>
 
     @if (Model.DataType == "Select")
     {
         <div class="mb-3">
-            <label class="form-label">Dropdown options (one per line)</label>
+            <label class="form-label">
+                @Loc["attributes.edit.dropdownOptions"]
+            </label>
             <textarea name="selectOptionsRaw" class="form-control" rows="4">@string.Join("\n", Model.SelectOptions)</textarea>
         </div>
     }
 
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a asp-action="Index" class="btn btn-link">Cancel</a>
+    <button type="submit" class="btn btn-primary">
+        @Loc["attributes.edit.save"]
+    </button>
+
+    <a asp-action="Index" class="btn btn-link">
+        @Loc["attributes.edit.cancel"]
+    </a>
 </form>
 
-<form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Delete this attribute?');" class="mt-3">
-    <button type="submit" class="btn btn-outline-danger">Delete</button>
+<form asp-action="Delete"
+      asp-route-id="@Model.Id"
+      method="post"
+      onsubmit="return confirm('@Loc["attributes.edit.deleteConfirm"]');"
+      class="mt-3">
+
+    <button type="submit" class="btn btn-outline-danger">
+        @Loc["attributes.edit.delete"]
+    </button>
 </form>

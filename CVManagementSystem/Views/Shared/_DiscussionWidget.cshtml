@@ -1,198 +1,300 @@
 @model CVManagementSystem.Models.ViewModels.DiscussionWidgetViewModel
 
-<div id="discussion-widget" data-position-id="@Model.PositionId" data-can-link="@Model.CanLinkToProfiles.ToString().ToLower()">
-    <button id="discussion-toggle" type="button" aria-label="Open discussion">
+<div id="discussion-widget"
+     data-position-id="@Model.PositionId"
+     data-can-link="@Model.CanLinkToProfiles.ToString().ToLower()">
+
+    <button id="discussion-toggle"
+            type="button"
+            aria-label="@Loc["discussion.open"]">
         <i class="bi bi-chat-dots-fill"></i>
         <span id="discussion-badge" class="d-none">0</span>
     </button>
 
     <div id="discussion-panel" class="d-none">
         <div id="discussion-header">
-            <span>Discussion</span>
-            <button type="button" id="discussion-close" aria-label="Close">&times;</button>
+            <span>@Loc["discussion.title"]</span>
+            <button type="button"
+                    id="discussion-close"
+                    aria-label="@Loc["discussion.close"]">
+                &times;
+            </button>
         </div>
-        <div id="discussion-status" class="text-muted small px-2 pt-1"></div>
+
+        <div id="discussion-status"
+             class="text-muted small px-2 pt-1"></div>
+
         <div id="discussion-messages"></div>
+
         <form id="discussion-send-form">
-            <input type="text" id="discussion-input" placeholder="Write a message..." autocomplete="off" />
-            <button type="submit"><i class="bi bi-send-fill"></i></button>
+            <input type="text"
+                   id="discussion-input"
+                   placeholder="@Loc["discussion.writeMessage"]"
+                   autocomplete="off" />
+
+            <button type="submit"
+                    aria-label="@Loc["discussion.send"]">
+                <i class="bi bi-send-fill"></i>
+            </button>
         </form>
     </div>
 </div>
 
 <style>
     #discussion-widget { position: fixed; bottom: 1.25rem; right: 1.25rem; z-index: 1050; font-family: 'IBM Plex Sans', sans-serif; }
+
     #discussion-toggle {
         width: 56px; height: 56px; border-radius: 50%; border: none;
         background-color: var(--pine); color: #fff; font-size: 1.4rem;
         box-shadow: 0 2px 10px rgba(0,0,0,0.25); position: relative; cursor: pointer;
     }
+
     #discussion-badge {
         position: absolute; top: -4px; right: -4px; background-color: var(--danger);
         color: #fff; border-radius: 999px; font-size: 0.7rem; padding: 2px 6px; font-weight: 600;
     }
+
     #discussion-panel {
         position: absolute; bottom: 70px; right: 0; width: 340px; max-height: 460px;
         background-color: var(--bs-body-bg); border: 1px solid var(--line); border-radius: 6px;
         box-shadow: 0 4px 20px rgba(0,0,0,0.3); display: flex; flex-direction: column; overflow: hidden;
     }
+
     #discussion-header {
         display: flex; justify-content: space-between; align-items: center;
         padding: 0.6rem 0.9rem; border-bottom: 1px solid var(--line);
         font-family: 'Lora', serif; font-weight: 600;
     }
+
     #discussion-header button { background: none; border: none; font-size: 1.2rem; color: var(--ink-soft); cursor: pointer; }
+
     #discussion-messages { flex: 1; overflow-y: auto; padding: 0.6rem 0.9rem; max-height: 300px; }
+
     #discussion-messages .msg { margin-bottom: 0.6rem; }
+
     #discussion-messages .msg .meta { font-size: 0.75rem; color: var(--ink-soft); }
+
     #discussion-send-form { display: flex; border-top: 1px solid var(--line); }
+
     #discussion-input { flex: 1; border: none; padding: 0.6rem; background: transparent; color: var(--ink); }
+
     #discussion-input:focus { outline: none; }
+
     #discussion-send-form button { border: none; background: transparent; color: var(--pine); padding: 0 0.9rem; cursor: pointer; }
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+
 <script>
-(function () {
-    const widget = document.getElementById('discussion-widget');
-    const positionId = parseInt(widget.dataset.positionId, 10);
-    const canLink = widget.dataset.canLink === 'true';
-    const lastReadKey = 'discussion-lastread-' + positionId;
+    (function () {
+        const widget = document.getElementById('discussion-widget');
+        const positionId = parseInt(widget.dataset.positionId, 10);
+        const canLink = widget.dataset.canLink === 'true';
+        const lastReadKey = 'discussion-lastread-' + positionId;
 
-    const toggleBtn = document.getElementById('discussion-toggle');
-    const closeBtn = document.getElementById('discussion-close');
-    const panel = document.getElementById('discussion-panel');
-    const badge = document.getElementById('discussion-badge');
-    const statusEl = document.getElementById('discussion-status');
-    const messagesEl = document.getElementById('discussion-messages');
-    const sendForm = document.getElementById('discussion-send-form');
-    const input = document.getElementById('discussion-input');
+        const toggleBtn = document.getElementById('discussion-toggle');
+        const closeBtn = document.getElementById('discussion-close');
+        const panel = document.getElementById('discussion-panel');
+        const badge = document.getElementById('discussion-badge');
+        const statusEl = document.getElementById('discussion-status');
+        const messagesEl = document.getElementById('discussion-messages');
+        const sendForm = document.getElementById('discussion-send-form');
+        const input = document.getElementById('discussion-input');
 
-    let unread = 0;
-    let isOpen = false;
+        const text = {
+            failedToLoad: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Loc["discussion.failedToLoad"])),
+            connecting: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Loc["discussion.connecting"])),
+            reconnecting: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Loc["discussion.reconnecting"])),
+            disconnected: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Loc["discussion.disconnected"])),
+            failedToConnect: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Loc["discussion.failedToConnect"])),
+            failedToSend: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Loc["discussion.failedToSend"]))
+        };
 
-    function escapeHtml(str) {
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-    }
+        let unread = 0;
+        let isOpen = false;
 
-    function renderMessage(m) {
-        const nameHtml = canLink
-            ? `<a href="/Candidates?candidateId=${m.userId}">${escapeHtml(m.userFullname)}</a>`
-            : escapeHtml(m.userFullname);
-        const div = document.createElement('div');
-        div.className = 'msg';
-        div.innerHTML = `<div class="meta">${nameHtml} · ${new Date(m.sendAt).toLocaleString()}</div><div>${escapeHtml(m.messageText)}</div>`;
-        messagesEl.appendChild(div);
-    }
-
-    function scrollToBottom() { messagesEl.scrollTop = messagesEl.scrollHeight; }
-
-    function updateBadge() {
-        if (unread > 0 && !isOpen) {
-            badge.textContent = unread > 9 ? '9+' : unread;
-            badge.classList.remove('d-none');
-        } else {
-            badge.classList.add('d-none');
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
         }
-    }
 
-    function markRead() {
-        unread = 0;
-        localStorage.setItem(lastReadKey, new Date().toISOString());
-        updateBadge();
-    }
+        function renderMessage(m) {
+            const nameHtml = canLink
+                ? `<a href="/Candidates?candidateId=${m.userId}">${escapeHtml(m.userFullname)}</a>`
+                : escapeHtml(m.userFullname);
 
-    async function loadHistory() {
-        try {
-            const res = await fetch(`/Discussions/Messages?positionId=${positionId}`);
-            if (!res.ok) throw new Error('Failed to load messages');
-            const messages = await res.json();
-            messagesEl.innerHTML = '';
-            messages.forEach(renderMessage);
+            const div = document.createElement('div');
+            div.className = 'msg';
+            div.innerHTML =
+                `<div class="meta">${nameHtml} · ${new Date(m.sendAt).toLocaleString()}</div>` +
+                `<div>${escapeHtml(m.messageText)}</div>`;
+
+            messagesEl.appendChild(div);
+        }
+
+        function scrollToBottom() {
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+
+        function updateBadge() {
+            if (unread > 0 && !isOpen) {
+                badge.textContent = unread > 9 ? '9+' : unread;
+                badge.classList.remove('d-none');
+            } else {
+                badge.classList.add('d-none');
+            }
+        }
+
+        function markRead() {
+            unread = 0;
+            localStorage.setItem(lastReadKey, new Date().toISOString());
+            updateBadge();
+        }
+
+        async function loadHistory() {
+            try {
+                const res = await fetch(`/Discussions/Messages?positionId=${positionId}`);
+
+                if (!res.ok) {
+                    throw new Error('Failed to load messages');
+                }
+
+                const messages = await res.json();
+
+                messagesEl.innerHTML = '';
+                messages.forEach(renderMessage);
+                scrollToBottom();
+
+                const lastRead = localStorage.getItem(lastReadKey);
+
+                if (lastRead) {
+                    unread = messages.filter(
+                        m => new Date(m.sendAt) > new Date(lastRead)
+                    ).length;
+
+                    updateBadge();
+                }
+            } catch (err) {
+                statusEl.textContent = text.failedToLoad;
+            }
+        }
+
+        const sendBtn = sendForm.querySelector('button[type="submit"]');
+
+        sendBtn.disabled = true;
+        statusEl.textContent = text.connecting;
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl('/hubs/discussion')
+            .withAutomaticReconnect()
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+
+        connection.on('ReceiveMessage', (message) => {
+            renderMessage(message);
             scrollToBottom();
 
-            const lastRead = localStorage.getItem(lastReadKey);
-            if (lastRead) {
-                unread = messages.filter(m => new Date(m.sendAt) > new Date(lastRead)).length;
+            if (!isOpen) {
+                unread++;
                 updateBadge();
+            } else {
+                localStorage.setItem(
+                    lastReadKey,
+                    new Date().toISOString()
+                );
             }
-        } catch (err) {
-            statusEl.textContent = 'Could not load discussion history.';
-        }
-    }
-
-    const sendBtn = sendForm.querySelector('button[type="submit"]');
-    sendBtn.disabled = true;
-    statusEl.textContent = 'Connecting...';
-
-    const connection = new signalR.HubConnectionBuilder()
-        .withUrl('/hubs/discussion')
-        .withAutomaticReconnect()
-        .configureLogging(signalR.LogLevel.Information)
-        .build();
-
-    connection.on('ReceiveMessage', (message) => {
-        renderMessage(message);
-        scrollToBottom();
-        if (!isOpen) {
-            unread++;
-            updateBadge();
-        } else {
-            localStorage.setItem(lastReadKey, new Date().toISOString());
-        }
-    });
-
-    connection.on('Error', (msg) => { statusEl.textContent = msg; });
-    connection.onreconnecting(() => { statusEl.textContent = 'Reconnecting...'; sendBtn.disabled = true; });
-    connection.onreconnected(() => {
-        statusEl.textContent = '';
-        sendBtn.disabled = false;
-        connection.invoke('JoinPosition', positionId).catch(err => console.error('JoinPosition failed:', err));
-    });
-    connection.onclose((err) => {
-        statusEl.textContent = 'Disconnected. Reload the page to reconnect.';
-        sendBtn.disabled = true;
-        console.error('SignalR closed:', err);
-    });
-
-    connection.start()
-        .then(() => {
-            console.log('SignalR connected, state =', connection.state);
-            statusEl.textContent = '';
-            sendBtn.disabled = false;
-            return connection.invoke('JoinPosition', positionId);
-        })
-        .catch(err => {
-            console.error('SignalR connection failed:', err);
-            statusEl.textContent = 'Could not connect to live chat: ' + err.message;
         });
 
-    loadHistory();
+        connection.on('Error', (msg) => {
+            statusEl.textContent = msg;
+        });
 
-    toggleBtn.addEventListener('click', () => {
-        isOpen = !isOpen;
-        panel.classList.toggle('d-none', !isOpen);
-        if (isOpen) { markRead(); scrollToBottom(); }
-    });
+        connection.onreconnecting(() => {
+            statusEl.textContent = text.reconnecting;
+            sendBtn.disabled = true;
+        });
 
-    closeBtn.addEventListener('click', () => {
-        isOpen = false;
-        panel.classList.add('d-none');
-    });
+        connection.onreconnected(() => {
+            statusEl.textContent = '';
+            sendBtn.disabled = false;
 
-    sendForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const text = input.value.trim();
-        if (!text) return;
+            connection.invoke('JoinPosition', positionId)
+                .catch(err =>
+                    console.error('JoinPosition failed:', err)
+                );
+        });
 
-        connection.invoke('SendMessage', positionId, text)
-            .then(() => { input.value = ''; })
+        connection.onclose((err) => {
+            statusEl.textContent = text.disconnected;
+            sendBtn.disabled = true;
+            console.error('SignalR closed:', err);
+        });
+
+        connection.start()
+            .then(() => {
+                console.log(
+                    'SignalR connected, state =',
+                    connection.state
+                );
+
+                statusEl.textContent = '';
+                sendBtn.disabled = false;
+
+                return connection.invoke(
+                    'JoinPosition',
+                    positionId
+                );
+            })
             .catch(err => {
-                console.error('Send failed:', err);
-                statusEl.textContent = 'Failed to send message: ' + err.message;
+                console.error(
+                    'SignalR connection failed:',
+                    err
+                );
+
+                statusEl.textContent =
+                    text.failedToConnect + ': ' + err.message;
             });
-    });
-})();
+
+        loadHistory();
+
+        toggleBtn.addEventListener('click', () => {
+            isOpen = !isOpen;
+            panel.classList.toggle('d-none', !isOpen);
+
+            if (isOpen) {
+                markRead();
+                scrollToBottom();
+            }
+        });
+
+        closeBtn.addEventListener('click', () => {
+            isOpen = false;
+            panel.classList.add('d-none');
+        });
+
+        sendForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const messageText = input.value.trim();
+
+            if (!messageText) {
+                return;
+            }
+
+            connection.invoke(
+                'SendMessage',
+                positionId,
+                messageText
+            )
+                .then(() => {
+                    input.value = '';
+                })
+                .catch(err => {
+                    console.error('Send failed:', err);
+                    statusEl.textContent =
+                        text.failedToSend + ': ' + err.message;
+                });
+        });
+    })();
 </script>

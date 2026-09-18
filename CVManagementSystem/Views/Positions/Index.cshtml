@@ -1,48 +1,94 @@
 @model List<PositionListItemDto>
 @{
-    ViewData["Title"] = "Positions";
+    ViewData["Title"] = Loc["positions.index.title"];
 }
 
-<h2>Positions</h2>
+<h2>@Loc["positions.index.title"]</h2>
 
 @if (User.IsInRole("Recruiter") || User.IsInRole("Administrator"))
 {
     <div class="mb-3">
-        <a asp-action="Create" class="btn btn-primary">+ New Position</a>
+        <a asp-action="Create" class="btn btn-primary">
+            @Loc["positions.index.newPosition"]
+        </a>
     </div>
 }
 
-<form asp-action="Delete" method="post" onsubmit="return confirm('Delete selected position(s)?');">
+<form asp-action="Delete"
+      method="post"
+      onsubmit="return confirm('@Loc["positions.index.deleteConfirm"]');">
+
     <div class="d-flex align-items-center gap-2 mb-2">
         @if (User.IsInRole("Recruiter") || User.IsInRole("Administrator"))
         {
-            <button type="button" id="edit-btn" class="btn btn-sm btn-outline-secondary" disabled>Edit</button>
-            <button type="submit" id="duplicate-btn" class="btn btn-sm btn-outline-secondary" disabled formaction="@Url.Action("Duplicate")">Duplicate</button>
-            <button type="submit" id="delete-btn" class="btn btn-sm btn-outline-danger" disabled>Delete</button>
+            <button type="button"
+                    id="edit-btn"
+                    class="btn btn-sm btn-outline-secondary"
+                    disabled>
+                @Loc["positions.index.edit"]
+            </button>
+
+            <button type="submit"
+                    id="duplicate-btn"
+                    class="btn btn-sm btn-outline-secondary"
+                    disabled
+                    formaction="@Url.Action("Duplicate")">
+                @Loc["positions.index.duplicate"]
+            </button>
+
+            <button type="submit"
+                    id="delete-btn"
+                    class="btn btn-sm btn-outline-danger"
+                    disabled>
+                @Loc["positions.index.delete"]
+            </button>
         }
+
         <span id="selection-count" class="text-muted small"></span>
     </div>
 
     <table class="table table-striped align-middle">
         <thead>
             <tr>
-                <th style="width: 2rem;"><input type="checkbox" id="select-all" /></th>
-                <th>Name</th>
-                <th>Short Description</th>
-                <th>Created</th>
-                <th>Status</th>
-                <th>CVs</th>
+                <th style="width: 2rem;">
+                    <input type="checkbox" id="select-all" />
+                </th>
+                <th>@Loc["positions.index.name"]</th>
+                <th>@Loc["positions.index.shortDescription"]</th>
+                <th>@Loc["positions.index.created"]</th>
+                <th>@Loc["positions.index.status"]</th>
+                <th>@Loc["positions.index.cvs"]</th>
             </tr>
         </thead>
+
         <tbody>
             @foreach (var p in Model)
             {
                 <tr>
-                    <td><input type="checkbox" class="row-check" name="ids" value="@p.Id" /></td>
-                    <td><a asp-action="Details" asp-route-id="@p.Id">@p.Name</a></td>
+                    <td>
+                        <input type="checkbox"
+                               class="row-check"
+                               name="ids"
+                               value="@p.Id" />
+                    </td>
+
+                    <td>
+                        <a asp-action="Details"
+                           asp-route-id="@p.Id">
+                            @p.Name
+                        </a>
+                    </td>
+
                     <td>@p.ShortDescription</td>
+
                     <td>@p.CreatedAt.ToString("yyyy-MM-dd")</td>
-                    <td>@(p.Open ? "Open" : "Closed")</td>
+
+                    <td>
+                        @(p.Open
+                            ? Loc["positions.index.open"]
+                            : Loc["positions.index.closed"])
+                    </td>
+
                     <td>@p.CvCount</td>
                 </tr>
             }
@@ -61,13 +107,20 @@
 
         function updateToolbar() {
             const checkedBoxes = document.querySelectorAll('.row-check:checked');
+
             if (deleteBtn) deleteBtn.disabled = checkedBoxes.length === 0;
             if (editBtn) editBtn.disabled = checkedBoxes.length !== 1;
             if (duplicateBtn) duplicateBtn.disabled = checkedBoxes.length !== 1;
-            countLabel.textContent = checkedBoxes.length > 0 ? checkedBoxes.length + ' selected' : '';
+
+            countLabel.textContent =
+                checkedBoxes.length > 0
+                    ? checkedBoxes.length + ' @Loc["positions.index.selected"]'
+                    : '';
         }
 
-        rowChecks.forEach(cb => cb.addEventListener('change', updateToolbar));
+        rowChecks.forEach(cb =>
+            cb.addEventListener('change', updateToolbar)
+        );
 
         selectAll.addEventListener('change', () => {
             rowChecks.forEach(cb => cb.checked = selectAll.checked);
@@ -76,8 +129,13 @@
 
         if (editBtn) {
             editBtn.addEventListener('click', () => {
-                const checkedBox = document.querySelector('.row-check:checked');
-                if (checkedBox) window.location.href = '@Url.Action("Edit")/' + checkedBox.value;
+                const checkedBox =
+                    document.querySelector('.row-check:checked');
+
+                if (checkedBox) {
+                    window.location.href =
+                        '@Url.Action("Edit")/' + checkedBox.value;
+                }
             });
         }
     </script>

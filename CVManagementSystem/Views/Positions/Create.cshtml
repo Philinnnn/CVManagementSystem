@@ -1,61 +1,100 @@
 @model PositionFormViewModel
 @{
-    ViewData["Title"] = "New Position";
+    ViewData["Title"] = Loc["positions.create.title"];
     var allAttributes = (List<AttributeDto>)ViewBag.AllAttributes;
     var operators = (IReadOnlyCollection<string>)ViewBag.Operators;
 }
 
-<h2>New Position</h2>
+<h2>@Loc["positions.create.title"]</h2>
 <div asp-validation-summary="All" class="text-danger"></div>
 
 <form asp-action="Create" method="post">
     <div class="mb-3">
-        <label class="form-label">Name</label>
+        <label class="form-label">@Loc["positions.create.name"]</label>
         <input asp-for="Name" class="form-control" />
     </div>
+
     <div class="mb-3">
-        <label class="form-label">Short Description</label>
+        <label class="form-label">@Loc["positions.create.shortDescription"]</label>
         <textarea asp-for="ShortDescription" class="form-control"></textarea>
     </div>
+
     <div class="mb-3">
-        <label class="form-label">Max Projects in CV</label>
-        <input asp-for="MaxProjects" type="number" min="0" class="form-control" style="max-width: 150px;" />
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Project Tags (comma-separated; only projects with these tags are pulled into the CV — leave empty to include all)</label>
-        <input asp-for="ProjectTagsRaw" class="form-control" placeholder="C#, EF Core, Docker" />
+        <label class="form-label">@Loc["positions.create.maxProjects"]</label>
+        <input asp-for="MaxProjects"
+               type="number"
+               min="0"
+               class="form-control"
+               style="max-width: 150px;" />
     </div>
 
-    <h5 class="mt-4">Attributes</h5>
-    <p class="text-muted small">Check attributes to include in this position's CV. Mark "Required" for the ones needed before a CV can be published.</p>
+    <div class="mb-3">
+        <label class="form-label">@Loc["positions.create.projectTags"]</label>
+        <input asp-for="ProjectTagsRaw"
+               class="form-control"
+               placeholder="@Loc["positions.create.projectTagsPlaceholder"]" />
+    </div>
+
+    <h5 class="mt-4">@Loc["positions.create.attributes"]</h5>
+    <p class="text-muted small">
+        @Loc["positions.create.attributesHint"]
+    </p>
+
     <div style="max-height: 400px; overflow-y: auto;">
         <table class="table table-sm">
             <thead>
-            <tr><th>Include</th><th>Attribute</th><th>Category</th><th>Data Type</th><th>Required</th></tr>
+                <tr>
+                    <th>@Loc["positions.create.include"]</th>
+                    <th>@Loc["positions.create.attribute"]</th>
+                    <th>@Loc["positions.create.category"]</th>
+                    <th>@Loc["positions.create.dataType"]</th>
+                    <th>@Loc["positions.create.required"]</th>
+                </tr>
             </thead>
             <tbody>
-            @foreach (var attr in allAttributes)
-            {
-                <tr>
-                    <td><input type="checkbox" name="SelectedAttributeIds" value="@attr.Id" /></td>
-                    <td>@attr.Name</td>
-                    <td>@attr.CategoryName</td>
-                    <td>@attr.DataType</td>
-                    <td><input type="checkbox" name="RequiredAttributeIds" value="@attr.Id" /></td>
-                </tr>
-            }
+                @foreach (var attr in allAttributes)
+                {
+                    <tr>
+                        <td>
+                            <input type="checkbox"
+                                   name="SelectedAttributeIds"
+                                   value="@attr.Id" />
+                        </td>
+                        <td>@attr.Name</td>
+                        <td>@attr.CategoryName</td>
+                        <td>@attr.DataType</td>
+                        <td>
+                            <input type="checkbox"
+                                   name="RequiredAttributeIds"
+                                   value="@attr.Id" />
+                        </td>
+                    </tr>
+                }
             </tbody>
         </table>
     </div>
 
-    <h5 class="mt-4">Access Rules</h5>
-    <p class="text-muted small">Leave empty for a public position. If you add rules, a candidate must satisfy <strong>all</strong> of them.</p>
+    <h5 class="mt-4">@Loc["positions.create.accessRules"]</h5>
+    <p class="text-muted small">
+        @Loc["positions.create.accessRulesHint"]
+    </p>
+
     <div id="rules-container"></div>
-    <button type="button" id="add-rule-btn" class="btn btn-sm btn-outline-secondary mb-3">+ Add Rule</button>
+
+    <button type="button"
+            id="add-rule-btn"
+            class="btn btn-sm btn-outline-secondary mb-3">
+        @Loc["positions.create.addRule"]
+    </button>
 
     <div>
-        <button type="submit" class="btn btn-primary">Create</button>
-        <a asp-action="Index" class="btn btn-link">Cancel</a>
+        <button type="submit" class="btn btn-primary">
+            @Loc["positions.create.create"]
+        </button>
+
+        <a asp-action="Index" class="btn btn-link">
+            @Loc["positions.create.cancel"]
+        </a>
     </div>
 </form>
 
@@ -63,13 +102,17 @@
     <div class="row g-2 mb-2 rule-row">
         <div class="col-4">
             <select name="RuleAttributeIds" class="form-select">
-                <option value="0">-- attribute --</option>
+                <option value="0">
+                    @Loc["positions.create.attributePlaceholder"]
+                </option>
+
                 @foreach (var attr in allAttributes)
                 {
                     <option value="@attr.Id">@attr.Name</option>
                 }
             </select>
         </div>
+
         <div class="col-3">
             <select name="RuleOperators" class="form-select">
                 @foreach (var op in operators)
@@ -78,11 +121,19 @@
                 }
             </select>
         </div>
+
         <div class="col-3">
-            <input type="text" name="RuleExpectedValues" class="form-control" placeholder="expected value" />
+            <input type="text"
+                   name="RuleExpectedValues"
+                   class="form-control"
+                   placeholder="@Loc["positions.create.expectedValue"]" />
         </div>
+
         <div class="col-2">
-            <button type="button" class="btn btn-outline-danger remove-rule-btn">Remove</button>
+            <button type="button"
+                    class="btn btn-outline-danger remove-rule-btn">
+                @Loc["positions.create.removeRule"]
+            </button>
         </div>
     </div>
 </template>
@@ -92,9 +143,11 @@
         document.getElementById('add-rule-btn').addEventListener('click', () => {
             const template = document.getElementById('rule-row-template');
             const clone = template.content.cloneNode(true);
+
             clone.querySelector('.remove-rule-btn').addEventListener('click', e => {
                 e.target.closest('.rule-row').remove();
             });
+
             document.getElementById('rules-container').appendChild(clone);
         });
     </script>

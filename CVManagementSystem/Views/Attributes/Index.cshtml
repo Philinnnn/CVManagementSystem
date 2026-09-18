@@ -1,93 +1,71 @@
-@model List<CVManagementSystem.Services.Attributes.Dtos.AttributeDto>
+@model CVManagementSystem.Services.Attributes.Dtos.CreateAttributeRequest
 @{
-    ViewData["Title"] = "Attribute Library";
+    ViewData["Title"] = Loc["attributes.create.title"];
     var categories = (List<CategoryDto>)ViewBag.Categories;
+    var dataTypes = (IReadOnlyCollection<string>)ViewBag.DataTypes;
 }
 
-<h2>Attribute Library</h2>
+<h2>@Loc["attributes.create.title"]</h2>
+<div asp-validation-summary="All" class="text-danger"></div>
 
-<form method="get" class="row g-2 mb-3">
-    <div class="col-auto">
-        <input type="text" name="q" value="@ViewBag.Query" class="form-control" placeholder="Search by name..." />
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label class="form-label">@Loc["attributes.create.name"]</label>
+        <input asp-for="Name" class="form-control" />
     </div>
-    <div class="col-auto">
-        <select name="categoryId" class="form-select">
-            <option value="">All categories</option>
+
+    <div class="mb-3">
+        <label class="form-label">@Loc["attributes.create.description"]</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">@Loc["attributes.create.category"]</label>
+        <select asp-for="CategoryId" class="form-select" style="max-width: 400px;">
             @foreach (var c in categories)
             {
-                <option value="@c.Id" selected="@(ViewBag.SelectedCategoryId == c.Id)">@c.Name</option>
+                <option value="@c.Id">@c.Name</option>
             }
         </select>
     </div>
-    <div class="col-auto">
-        <button type="submit" class="btn btn-outline-secondary">Filter</button>
-    </div>
-    <div class="col-auto ms-auto">
-        <a asp-action="Create" class="btn btn-primary">+ New Attribute</a>
-    </div>
-</form>
 
-<form asp-action="Delete" method="post" id="bulk-form" onsubmit="return confirm('Delete selected attribute(s)?');">
-    <div class="d-flex align-items-center gap-2 mb-2">
-        <button type="button" id="edit-btn" class="btn btn-sm btn-outline-secondary" disabled>Edit</button>
-        <button type="submit" id="delete-btn" class="btn btn-sm btn-outline-danger" disabled>Delete</button>
-        <span id="selection-count" class="text-muted small"></span>
-    </div>
-    
-    <div style="max-height: 65vh; overflow-y: auto;">
-        <table class="table table-striped align-middle">
-            <thead>
-            <tr>
-                <th style="width: 2rem;"><input type="checkbox" id="select-all" /></th>
-                <th>Name</th>
-                <th>Category</th>
-                <th>Data Type</th>
-                <th>Description</th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach (var attr in Model)
+    <div class="mb-3">
+        <label class="form-label">@Loc["attributes.create.dataType"]</label>
+        <select asp-for="DataType" class="form-select" style="max-width: 400px;">
+            @foreach (var dt in dataTypes)
             {
-                <tr>
-                    <td><input type="checkbox" class="row-check" name="ids" value="@attr.Id" /></td>
-                    <td>@attr.Name @(attr.SelectOptions.Count > 0 ? $"({string.Join(", ", attr.SelectOptions.ToArray())})" : "")</td>
-                    <td>@attr.CategoryName</td>
-                    <td>@attr.DataType</td>
-                    <td>@attr.Description</td>
-                </tr>
+                <option value="@dt">@dt</option>
             }
-            </tbody>
-        </table>
+        </select>
     </div>
+
+    <div class="mb-3">
+        <label class="form-label">
+            @Loc["attributes.create.dropdownOptions"]
+        </label>
+        <textarea name="selectOptionsRaw" class="form-control" rows="4"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        @Loc["attributes.create.create"]
+    </button>
+
+    <a asp-action="Index" class="btn btn-link">
+        @Loc["attributes.create.cancel"]
+    </a>
 </form>
 
-@section Scripts {
-    <script>
-        const rowChecks = document.querySelectorAll('.row-check');
-        const selectAll = document.getElementById('select-all');
-        const editBtn = document.getElementById('edit-btn');
-        const deleteBtn = document.getElementById('delete-btn');
-        const countLabel = document.getElementById('selection-count');
+<hr />
 
-        function updateToolbar() {
-            const checked = document.querySelectorAll('.row-check:checked');
-            deleteBtn.disabled = checked.length === 0;
-            editBtn.disabled = checked.length !== 1;
-            countLabel.textContent = checked.length > 0 ? checked.length + ' selected' : '';
-        }
+<h5>@Loc["attributes.create.quickAddCategory"]</h5>
 
-        rowChecks.forEach(cb => cb.addEventListener('change', updateToolbar));
+<form asp-action="CreateCategory" method="post" class="d-flex gap-2">
+    <input type="text"
+           name="name"
+           class="form-control"
+           placeholder="@Loc["attributes.create.newCategoryName"]" />
 
-        selectAll.addEventListener('change', () => {
-            rowChecks.forEach(cb => cb.checked = selectAll.checked);
-            updateToolbar();
-        });
-
-        editBtn.addEventListener('click', () => {
-            const checked = document.querySelector('.row-check:checked');
-            if (checked) {
-                window.location.href = '@Url.Action("Edit")/' + checked.value;
-            }
-        });
-    </script>
-}
+    <button type="submit" class="btn btn-outline-secondary">
+        @Loc["attributes.create.add"]
+    </button>
+</form>
