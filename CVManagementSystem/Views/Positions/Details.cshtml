@@ -59,5 +59,13 @@
     </table>
 
     <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Edit position</a>
-    <a asp-controller="Discussions" asp-action="Index" asp-route-positionId="@Model.Id" class="btn btn-outline-secondary">Discussion</a>
+}
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+    @await Html.PartialAsync("_DiscussionWidget", new DiscussionWidgetViewModel
+    {
+        PositionId = Model.Id,
+        CanLinkToProfiles = User.IsInRole("Recruiter") || User.IsInRole("Administrator")
+    })
 }

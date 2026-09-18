@@ -38,6 +38,7 @@ public class CvService(AppDbContext db, IPositionService positionService) : ICvS
         var cvs = await db.Cvs
             .Where(c => c.PositionId == positionId && c.Status == CvStatus.Published)
             .Include(c => c.Candidate).ThenInclude(cand => cand.User)
+            .Include(c => c.Likes)
             .ToListAsync();
 
         if (cvs.Count == 0 || position.AccessRules.Count == 0)

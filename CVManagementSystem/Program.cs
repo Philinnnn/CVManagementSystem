@@ -108,6 +108,6 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-app.MapHub<DiscussionHub>("/discussion");
+app.MapHub<DiscussionHub>("hubs/discussion");
 
 app.Run();

@@ -17,11 +17,17 @@ public class DiscussionHub(IDiscussionService discussionService) : Hub
     {
         var userId = int.Parse(Context.UserIdentifier ?? "0");
         if (userId == 0)
+        {
+            await Clients.Caller.SendAsync("Error", "You must be signed in to send messages.");
             return;
+        }
 
         var result = await discussionService.PostMessageAsync(positionId, userId, text);
         if (!result.Success)
+        {
+            await Clients.Caller.SendAsync("Error", result.Error);
             return;
+        }
 
         await Clients.Group(GroupName(positionId)).SendAsync("ReceiveMessage", result.Value);
     }
