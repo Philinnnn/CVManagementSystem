@@ -152,8 +152,56 @@ public class AccountController(IAuthService authService) : Controller
         if (!User.TryGetUserId(out var userId))
             return RedirectToAction(nameof(Logout));
 
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
         var links = await db.ExternalLogins.Where(el => el.UserId == userId).Select(el => el.Provider).ToListAsync();
+
         ViewBag.LinkedProviders = links;
+        ViewBag.HasPassword = user?.HasPassword ?? true;
         return View();
     }
+    
+    [HttpPost]
+    [Authorize]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UnlinkExternalLogin(string provider, [FromServices] IExternalAuthService externalAuthService)
+    {
+        if (!User.TryGetUserId(out var userId))
+            return RedirectToAction(nameof(Logout));
+
+        var result = await externalAuthService.UnlinkAsync(userId, provider);
+        if (!result.Success)
+            TempData["Error"] = result.Error;
+
+        return RedirectToAction(nameof(Manage));
+    }
+
+    [HttpGet]
+    [Authorize]
+    public IActionResult SetPassword() => View();
+
+    [HttpPost]
+    [Authorize]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SetPassword(string newPassword, string confirmPassword)
+    {
+        if (newPassword != confirmPassword)
+        {
+            ModelState.AddModelError(string.Empty, "Passwords do not match");
+            return View();
+        }
+
+        if (!User.TryGetUserId(out var userId))
+            return RedirectToAction(nameof(Logout));
+
+        var (success, error) = await authService.SetPasswordAsync(userId, newPassword);
+        if (!success)
+        {
+            ModelState.AddModelError(string.Empty, error ?? "Failed to set password");
+            return View();
+        }
+
+        TempData["Success"] = "Password set successfully.";
+        return RedirectToAction(nameof(Manage));
+    }
+    
 }

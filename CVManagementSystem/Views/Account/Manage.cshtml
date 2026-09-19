@@ -1,37 +1,48 @@
 @{
     ViewData["Title"] = "Account Settings";
     var linked = (List<string>)ViewBag.LinkedProviders;
+    var hasPassword = (bool)ViewBag.HasPassword;
 }
 
 <h2>Account Settings</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<h5>Password</h5>
+<p class="text-muted">
+    @(hasPassword ? "You have a password set for this account." : "You signed up with a social account and don't have a password yet.")
+</p>
+<a asp-action="SetPassword" class="btn btn-sm btn-outline-secondary mb-4">
+    @(hasPassword ? "Change password" : "Set a password")
+</a>
+
 <h5>Linked accounts</h5>
 <ul class="list-unstyled">
-    <li class="mb-2 d-flex align-items-center gap-2">
-        <i class="bi bi-google"></i> Google
-        @if (linked.Contains("Google"))
-        {
-            <span class="badge bg-secondary">Linked</span>
-        }
-        else
-        {
-            <form asp-action="LinkExternalLogin" method="post">
-                <input type="hidden" name="provider" value="Google" />
-                <button type="submit" class="btn btn-sm btn-outline-secondary">Link</button>
-            </form>
-        }
-    </li>
-    <li class="mb-2 d-flex align-items-center gap-2">
-        <i class="bi bi-github"></i> GitHub
-        @if (linked.Contains("GitHub"))
-        {
-            <span class="badge bg-secondary">Linked</span>
-        }
-        else
-        {
-            <form asp-action="LinkExternalLogin" method="post">
-                <input type="hidden" name="provider" value="GitHub" />
-                <button type="submit" class="btn btn-sm btn-outline-secondary">Link</button>
-            </form>
-        }
-    </li>
+    @foreach (var (provider, icon) in new[] { ("Google", "bi-google"), ("GitHub", "bi-github") })
+    {
+        <li class="mb-2 d-flex align-items-center gap-2">
+            <i class="bi @icon"></i> @provider
+            @if (linked.Contains(provider))
+            {
+                <form asp-action="UnlinkExternalLogin" method="post">
+                    <input type="hidden" name="provider" value="@provider" />
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Unlink</button>
+                </form>
+            }
+            else
+            {
+                <form asp-action="LinkExternalLogin" method="post">
+                    <input type="hidden" name="provider" value="@provider" />
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">Link</button>
+                </form>
+            }
+        </li>
+    }
 </ul>

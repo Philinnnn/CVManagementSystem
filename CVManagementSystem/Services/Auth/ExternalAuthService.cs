@@ -36,7 +36,8 @@ public class ExternalAuthService(AppDbContext db) : IExternalAuthService
             Login = await GenerateUniqueLoginAsync(email, name),
             Email = email ?? $"{provider.ToLowerInvariant()}_{providerKey}@no-email.local",
             Fullname = name ?? "New User",
-            Passhash = Guid.NewGuid().ToString("N")
+            Passhash = Guid.NewGuid().ToString("N"),
+            HasPassword = false
         };
         user.UserRoles.Add(new UserRole { Role = candidateRole });
         user.Candidate = new Candidate();
@@ -89,5 +90,25 @@ public class ExternalAuthService(AppDbContext db) : IExternalAuthService
         }
 
         return candidate;
+    }
+    
+    public async Task<OperationResult> UnlinkAsync(int userId, string provider)
+    {
+        var login = await db.ExternalLogins.FirstOrDefaultAsync(el => el.UserId == userId && el.Provider == provider);
+        if (login is null)
+            return OperationResult.Fail("This provider is not linked to your account");
+
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        if (user is null)
+            return OperationResult.Fail("User not found");
+
+        var remainingLinks = await db.ExternalLogins.CountAsync(el => el.UserId == userId && el.Provider != provider);
+
+        if (!user.HasPassword && remainingLinks == 0)
+            return OperationResult.Fail("Set a password or link another provider before removing your only sign-in method.");
+
+        db.ExternalLogins.Remove(login);
+        await db.SaveChangesAsync();
+        return OperationResult.Ok();
     }
 }

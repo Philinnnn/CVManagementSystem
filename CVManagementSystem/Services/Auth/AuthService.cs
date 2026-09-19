@@ -68,4 +68,20 @@ public class AuthService(AppDbContext db, IPasswordHasher<User> hasher) : IAuthS
 
         return (true, null, user);
     }
+    
+    public async Task<(bool Success, string? Error)> SetPasswordAsync(int userId, string newPassword)
+    {
+        if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 6)
+            return (false, "Password must be at least 6 characters long");
+
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        if (user is null)
+            return (false, "User not found");
+
+        user.Passhash = hasher.HashPassword(user, newPassword);
+        user.HasPassword = true;
+        await db.SaveChangesAsync();
+
+        return (true, null);
+    }
 }
