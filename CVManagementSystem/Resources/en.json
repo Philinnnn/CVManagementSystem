@@ -123,6 +123,8 @@
   "candidates.profile.location": "Location",
   "candidates.profile.photo": "Photo",
   "candidates.profile.published": "Published",
+  "candidates.profile.manage": "Manage",
+  "candidates.profile.done": "Done",
 
   "cvs.details.status": "Status",
   "cvs.details.candidateNoAccess": "candidate no longer has access to this position",

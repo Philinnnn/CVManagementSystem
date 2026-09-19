@@ -124,6 +124,8 @@
     "candidates.profile.location": "Местоположение",
     "candidates.profile.photo": "Фото",
     "candidates.profile.published": "Опубликовано",
+    "candidates.profile.manage": "Управление",
+    "candidates.profile.done": "Готово",
     
     "cvs.details.status": "Статус",
     "cvs.details.candidateNoAccess": "кандидат больше не имеет доступа к этой вакансии",

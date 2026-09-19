@@ -102,36 +102,22 @@
             <input type="hidden" name="expectedVersion" value="@Model.Profile.Version" />
             <input type="hidden" name="tab" value="info" />
 
-            @if (canEdit && Model.Profile.InfoAttributes.Count > 0)
-            {
-                <div class="d-flex align-items-center gap-2 mb-2">
-                    <button type="button"
-                            id="remove-attrs-btn"
-                            class="btn btn-sm btn-outline-danger"
-                            disabled
-                            formaction="@Url.Action("RemoveAttributes")"
-                            form="remove-attrs-form">
-                        @Loc["candidates.profile.removeSelected"]
-                    </button>
-
-                    <span id="attrs-selection-count" class="text-muted small"></span>
-                </div>
-            }
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <button type="button" id="manage-toggle" class="btn btn-sm btn-outline-secondary">@Loc["candidates.profile.manage"]</button>
+                <button type="button" id="remove-attrs-btn" class="btn btn-sm btn-outline-danger d-none" disabled
+                        formaction="@Url.Action("RemoveAttributes")" form="remove-attrs-form">
+                    @Loc["candidates.profile.removeSelected"]
+                </button>
+                <span id="attrs-selection-count" class="text-muted small"></span>
+            </div>
 
             @foreach (var attr in Model.Profile.InfoAttributes)
             {
                 <div class="mb-3 field-row @(attr.IsEmpty ? "field-empty" : "")">
                     <div class="d-flex align-items-center gap-2">
-                        @if (canEdit)
-                        {
-                            <input type="checkbox"
-                                   class="attr-check"
-                                   value="@attr.AttributeId" />
-                        }
-
+                        <input type="checkbox" class="attr-check d-none" value="@attr.AttributeId" />
                         <label class="form-label mb-0">@attr.AttributeName</label>
                     </div>
-
                     <div class="mt-1">
                         @if (canEdit)
                         {
@@ -139,11 +125,7 @@
                         }
                         else
                         {
-                            @Html.Raw(RenderReadOnly(
-                                attr,
-                                Loc["candidates.profile.yes"],
-                                Loc["candidates.profile.no"],
-                                Loc["candidates.profile.empty"]))
+                            @Html.Raw(RenderReadOnly(attr, Loc["candidates.profile.yes"], Loc["candidates.profile.no"], Loc["candidates.profile.empty"]))
                         }
                     </div>
                 </div>
@@ -312,10 +294,28 @@
 
 @section Scripts {
     <script>
+        const selectedLabel = @Html.Raw(JsonSerializer.Serialize(Loc["candidates.profile.selected"]));
         const checks = document.querySelectorAll('.attr-check');
         const removeBtn = document.getElementById('remove-attrs-btn');
         const countLabel = document.getElementById('attrs-selection-count');
         const removeForm = document.getElementById('remove-attrs-form');
+        const manageToggle = document.getElementById('manage-toggle');
+        const removeBtn2 = document.getElementById('remove-attrs-btn');
+        const allCheckboxes = document.querySelectorAll('.attr-check');
+        const manageLabel = @Html.Raw(JsonSerializer.Serialize(Loc["candidates.profile.manage"]));
+        const doneLabel = @Html.Raw(JsonSerializer.Serialize(Loc["candidates.profile.done"]));
+        let manageMode = false;
+
+        manageToggle.addEventListener('click', () => {
+            manageMode = !manageMode;
+            allCheckboxes.forEach(cb => cb.classList.toggle('d-none', !manageMode));
+            removeBtn2.classList.toggle('d-none', !manageMode);
+            manageToggle.textContent = manageMode ? doneLabel : manageLabel;
+            if (!manageMode) {
+                allCheckboxes.forEach(cb => cb.checked = false);
+                updateToolbar();
+            }
+        });
 
         function updateToolbar() {
             const checked = Array.from(
@@ -327,10 +327,7 @@
             }
 
             if (countLabel) {
-                countLabel.textContent =
-                    checked.length > 0
-                        ? checked.length + ' @Loc["candidates.profile.selected"]'
-                        : '';
+                countLabel.textContent = checked.length > 0 ? checked.length + ' ' + selectedLabel : '';
             }
 
             removeForm
