@@ -19,4 +19,13 @@
     </div>
     <button type="submit" class="btn btn-primary">@Loc["account.login.submit"]</button>
     <a asp-action="Register" class="btn btn-link">@Loc["account.login.registerLink"]</a>
+    <hr class="my-3" />
+    <div class="d-grid gap-2">
+        <a asp-action="ExternalLogin" asp-route-provider="Google" class="btn btn-outline-secondary">
+            <i class="bi bi-google me-2"></i>Continue with Google
+        </a>
+        <a asp-action="ExternalLogin" asp-route-provider="GitHub" class="btn btn-outline-secondary">
+            <i class="bi bi-github me-2"></i>Continue with GitHub
+        </a>
+    </div>
 </form>

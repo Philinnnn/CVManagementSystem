@@ -1,0 +1,37 @@
+@{
+    ViewData["Title"] = "Account Settings";
+    var linked = (List<string>)ViewBag.LinkedProviders;
+}
+
+<h2>Account Settings</h2>
+<h5>Linked accounts</h5>
+<ul class="list-unstyled">
+    <li class="mb-2 d-flex align-items-center gap-2">
+        <i class="bi bi-google"></i> Google
+        @if (linked.Contains("Google"))
+        {
+            <span class="badge bg-secondary">Linked</span>
+        }
+        else
+        {
+            <form asp-action="LinkExternalLogin" method="post">
+                <input type="hidden" name="provider" value="Google" />
+                <button type="submit" class="btn btn-sm btn-outline-secondary">Link</button>
+            </form>
+        }
+    </li>
+    <li class="mb-2 d-flex align-items-center gap-2">
+        <i class="bi bi-github"></i> GitHub
+        @if (linked.Contains("GitHub"))
+        {
+            <span class="badge bg-secondary">Linked</span>
+        }
+        else
+        {
+            <form asp-action="LinkExternalLogin" method="post">
+                <input type="hidden" name="provider" value="GitHub" />
+                <button type="submit" class="btn btn-sm btn-outline-secondary">Link</button>
+            </form>
+        }
+    </li>
+</ul>

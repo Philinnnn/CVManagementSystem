@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Localization;
+using Microsoft.EntityFrameworkCore;
 
 namespace CVManagementSystem.Controllers;
 
@@ -105,5 +106,51 @@ public class AccountController(IAuthService authService) : Controller
 
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal,
             new AuthenticationProperties { IsPersistent = true });
+    }
+    
+    [HttpGet]
+    [AllowAnonymous]
+    public IActionResult ExternalLogin(string provider, string? returnUrl = null)
+    {
+        var redirectUrl = Url.Action(nameof(ExternalLoginCallback), new { returnUrl });
+        var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+        properties.Items["flow"] = "login";
+        return Challenge(properties, provider);
+    }
+
+    [HttpGet]
+    [AllowAnonymous]
+    public IActionResult ExternalLoginCallback(string? returnUrl = null)
+    {
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            return Redirect(returnUrl);
+
+        return RedirectToAction("Index", "Home");
+    }
+
+    [HttpPost]
+    [Authorize]
+    [ValidateAntiForgeryToken]
+    public IActionResult LinkExternalLogin(string provider)
+    {
+        var redirectUrl = Url.Action(nameof(LinkExternalLoginCallback));
+        var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+        properties.Items["flow"] = "link";
+        properties.Items["userId"] = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return Challenge(properties, provider);
+    }
+
+    [HttpGet]
+    [Authorize]
+    public IActionResult LinkExternalLoginCallback() => RedirectToAction(nameof(Manage));
+
+    [HttpGet]
+    [Authorize]
+    public async Task<IActionResult> Manage([FromServices] Data.AppDbContext db)
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var links = await db.ExternalLogins.Where(el => el.UserId == userId).Select(el => el.Provider).ToListAsync();
+        ViewBag.LinkedProviders = links;
+        return View();
     }
 }
