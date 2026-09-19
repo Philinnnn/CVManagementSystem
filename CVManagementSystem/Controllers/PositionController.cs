@@ -2,7 +2,6 @@ using CVManagementSystem.Services.Common;
 
 namespace CVManagementSystem.Controllers;
 
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.Positions;
@@ -13,13 +12,13 @@ using Services.Cvs;
 using Services.Positions;
 using Services.Positions.Dtos;
 
-[Authorize]
 public class PositionsController(
     IPositionService positionService,
     IAttributeService attributeService,
     ICvService cvService,
     ICandidateProfileService candidateProfileService) : Controller
 {
+    [AllowAnonymous]
     public async Task<IActionResult> Index()
     {
         var positions = await positionService.GetAllAsync();
@@ -138,6 +137,7 @@ public class PositionsController(
         return RedirectToAction(nameof(Index));
     }
 
+    [AllowAnonymous]
     public async Task<IActionResult> Details(int id)
     {
         var position = await positionService.GetByIdAsync(id);
