@@ -29,7 +29,7 @@ public class AccountController(IAuthService authService) : Controller
         if (!ModelState.IsValid)
             return View(model);
 
-        var (success, error, user) = await authService.ValidateCredentialsAsync(model.Login, model.Password);
+        var (success, error, user) = await authService.ValidateCredentialsAsync(model.Email, model.Password);
         if (!success || user is null)
         {
             ModelState.AddModelError(string.Empty, error ?? "Login error");

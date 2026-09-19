@@ -8,9 +8,9 @@
 
 <form asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
     <div class="mb-3">
-        <label class="form-label">@Loc["account.login.loginLabel"]</label>
-        <input asp-for="Login" class="form-control" />
-        <span asp-validation-for="Login" class="text-danger"></span>
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" type="email" />
+        <span asp-validation-for="Email" class="text-danger"></span>
     </div>
     <div class="mb-3">
         <label class="form-label">@Loc["account.login.passwordLabel"]</label>

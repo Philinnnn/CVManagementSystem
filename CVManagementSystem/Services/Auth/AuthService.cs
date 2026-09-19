@@ -49,23 +49,22 @@ public class AuthService(AppDbContext db, IPasswordHasher<User> hasher) : IAuthS
         return (true, null, user);
     }
 
-    public async Task<(bool Success, string? Error, User? User)> ValidateCredentialsAsync(
-        string login, string password)
+    public async Task<(bool Success, string? Error, User? User)> ValidateCredentialsAsync(string email, string password)
     {
         var user = await db.Users
             .Include(u => u.UserRoles)
             .ThenInclude(ur => ur.Role)
-            .FirstOrDefaultAsync(u => u.Login == login);
+            .FirstOrDefaultAsync(u => u.Email == email);
 
         if (user is null)
-            return (false, "Invalid login or password", null);
+            return (false, "Invalid email or password", null);
 
         if (user.IsBlocked)
-            return (false, "Account is blocked", null);
+            return (false, "This account has been blocked", null);
 
         var result = hasher.VerifyHashedPassword(user, user.Passhash, password);
         if (result == PasswordVerificationResult.Failed)
-            return (false, "Invalid login or password", null);
+            return (false, "Invalid email or password", null);
 
         return (true, null, user);
     }
