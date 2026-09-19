@@ -9,7 +9,7 @@
 
 <h2>@Model.CandidateName — @Model.PositionName</h2>
 <p>
-    @Loc["cvs.details.status"]: <strong>@Model.Status</strong>
+    @Loc["cvs.details.status"]: <strong>@(Model.Status == CVManagementSystem.Models.Cvs.CvStatus.Published ? Loc["cvs.status.published"] : Loc["cvs.status.draft"])</strong>
     @if (!Model.CandidateHasAccess)
     {
         <span class="text-danger">

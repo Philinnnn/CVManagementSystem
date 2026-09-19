@@ -142,6 +142,8 @@
     "cvs.details.projects": "Проекты",
     "cvs.details.noMatchingProjects": "Нет подходящих проектов.",
     "cvs.details.present": "по настоящее время",
+    "cvs.status.draft": "Черновик",
+    "cvs.status.published": "Опубликовано",
     
     "positions.create.title": "Новая вакансия",
     "positions.create.name": "Название",

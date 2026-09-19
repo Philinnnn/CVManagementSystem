@@ -281,7 +281,7 @@
                             </a>
                         </td>
 
-                        <td>@cv.Status</td>
+                        <td>@(cv.Status == CVManagementSystem.Models.Cvs.CvStatus.Published ? Loc["cvs.status.published"] : Loc["cvs.status.draft"])</td>
                         <td>@cv.LikeCount</td>
                     </tr>
                 }

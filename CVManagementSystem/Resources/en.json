@@ -141,6 +141,8 @@
   "cvs.details.projects": "Projects",
   "cvs.details.noMatchingProjects": "No matching projects.",
   "cvs.details.present": "present",
+  "cvs.status.draft": "Draft",
+  "cvs.status.published": "Published",
 
   "positions.create.title": "New Position",
   "positions.create.name": "Name",
