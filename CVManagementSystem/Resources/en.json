@@ -92,6 +92,17 @@
   "attributes.edit.delete": "Delete",
   "attributes.edit.deleteConfirm": "Delete this attribute?",
 
+  "attributes.index.title": "Attribute Library",
+  "attributes.index.searchPlaceholder": "Search by name...",
+  "attributes.index.allCategories": "All categories",
+  "attributes.index.newAttribute": "+ New Attribute",
+  "attributes.index.name": "Name",
+  "attributes.index.category": "Category",
+  "attributes.index.dataType": "Data Type",
+  "attributes.index.description": "Description",
+  "attributes.index.selected": "selected",
+  "attributes.index.deleteConfirm": "Delete selected attribute(s)?",
+
   "candidates.profile.title": "Profile",
   "candidates.profile.me": "Me",
   "candidates.profile.info": "Info",

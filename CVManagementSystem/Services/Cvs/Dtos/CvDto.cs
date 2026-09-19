@@ -1,6 +1,5 @@
-namespace CVManagementSystem.Services.Cvs.Dtos;
-
-using Models.Cvs;
+using CVManagementSystem.Models.Cvs;
+using CVManagementSystem.Services.Cvs.Dtos;
 
 public class CvDto
 {
@@ -11,6 +10,7 @@ public class CvDto
     public string PositionName { get; set; } = string.Empty;
     public CvStatus Status { get; set; }
     public int Version { get; set; }
+    public int ProfileVersion { get; set; }
     public int LikeCount { get; set; }
     public bool LikedByCurrentUser { get; set; }
     public bool CandidateHasAccess { get; set; }

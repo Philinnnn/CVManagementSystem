@@ -82,14 +82,6 @@ public class AttributesController(IAttributeService attributeService, ICategoryS
         return RedirectToAction(nameof(Index));
     }
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CreateCategory(string name)
-    {
-        await categoryService.CreateAsync(name);
-        return RedirectToAction(nameof(Create));
-    }
-
     private static List<string> SplitOptions(string? raw) =>
         string.IsNullOrWhiteSpace(raw)
             ? []

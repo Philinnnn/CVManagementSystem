@@ -1,3 +1,5 @@
+using CVManagementSystem.Services.Common;
+
 namespace CVManagementSystem.Controllers;
 
 using System.Security.Claims;
@@ -158,7 +160,13 @@ public class PositionsController(
         return View(position);
     }
 
-    private int GetUserId() => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+    private int GetUserId()
+    {
+        if (!User.TryGetUserId(out var id))
+            throw new InvalidOperationException("Session claims are invalid — please log out and log in again.");
+
+        return id;
+    }
 
     private static List<string> SplitTags(string? raw) =>
         string.IsNullOrWhiteSpace(raw)

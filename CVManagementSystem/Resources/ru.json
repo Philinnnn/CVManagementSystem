@@ -92,6 +92,17 @@
     "attributes.edit.cancel": "Отмена",
     "attributes.edit.delete": "Удалить",
     "attributes.edit.deleteConfirm": "Удалить этот атрибут?",
+
+    "attributes.index.title": "Библиотека атрибутов",
+    "attributes.index.searchPlaceholder": "Поиск по названию...",
+    "attributes.index.allCategories": "Все категории",
+    "attributes.index.newAttribute": "+ Новый атрибут",
+    "attributes.index.name": "Название",
+    "attributes.index.category": "Категория",
+    "attributes.index.dataType": "Тип данных",
+    "attributes.index.description": "Описание",
+    "attributes.index.selected": "выбрано",
+    "attributes.index.deleteConfirm": "Удалить выбранные атрибуты?",
     
     "candidates.profile.title": "Профиль",
     "candidates.profile.me": "Я",

@@ -1,3 +1,4 @@
+using CVManagementSystem.Services.Common;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 
@@ -148,7 +149,9 @@ public class AccountController(IAuthService authService) : Controller
     [Authorize]
     public async Task<IActionResult> Manage([FromServices] Data.AppDbContext db)
     {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        if (!User.TryGetUserId(out var userId))
+            return RedirectToAction(nameof(Logout));
+
         var links = await db.ExternalLogins.Where(el => el.UserId == userId).Select(el => el.Provider).ToListAsync();
         ViewBag.LinkedProviders = links;
         return View();

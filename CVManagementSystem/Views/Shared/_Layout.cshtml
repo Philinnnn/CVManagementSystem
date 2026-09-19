@@ -45,15 +45,12 @@
                 </ul>
 
                 <div class="d-flex align-items-center gap-2 flex-wrap">
-                    @if (User.Identity?.IsAuthenticated == true)
-                    {
-                        <form asp-controller="Search" asp-action="Index" method="get" role="search">
-                            <div class="input-group input-group-sm">
-                                <span class="input-group-text bg-transparent"><i class="bi bi-search"></i></span>
-                                <input type="text" name="q" class="form-control" placeholder="@Loc["nav.search.placeholder"]" style="width: 220px;"/>
-                            </div>
-                        </form>
-                    }
+                    <form asp-controller="Search" asp-action="Index" method="get" role="search">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-transparent"><i class="bi bi-search"></i></span>
+                            <input type="text" name="q" class="form-control" placeholder="@Loc["nav.search.placeholder"]" style="width: 220px;"/>
+                        </div>
+                    </form>
 
                     <form asp-controller="Settings" asp-action="SetTheme" method="post">
                         <input type="hidden" name="returnUrl" value="@returnUrl"/>

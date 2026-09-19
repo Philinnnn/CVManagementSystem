@@ -54,18 +54,3 @@
         @Loc["attributes.create.cancel"]
     </a>
 </form>
-
-<hr />
-
-<h5>@Loc["attributes.create.quickAddCategory"]</h5>
-
-<form asp-action="CreateCategory" method="post" class="d-flex gap-2">
-    <input type="text"
-           name="name"
-           class="form-control"
-           placeholder="@Loc["attributes.create.newCategoryName"]" />
-
-    <button type="submit" class="btn btn-outline-secondary">
-        @Loc["attributes.create.add"]
-    </button>
-</form>

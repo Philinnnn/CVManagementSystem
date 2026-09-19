@@ -42,10 +42,8 @@ public class CvService(AppDbContext db, IPositionService positionService) : ICvS
             .ToListAsync();
 
         if (cvs.Count == 0 || position.AccessRules.Count == 0)
-        {
             return cvs.Select(ToListItem).ToList();
-        }
-        
+
         var candidateIds = cvs.Select(c => c.CandidateId).Distinct().ToList();
         var attributeIds = position.AccessRules.Select(r => r.AttributeId).ToList();
 
@@ -74,10 +72,7 @@ public class CvService(AppDbContext db, IPositionService positionService) : ICvS
 
     public async Task<OperationResult<CvDto>> CreateAsync(int candidateId, int positionId)
     {
-        var position = await db.Positions
-            .Include(p => p.PositionAttributes).ThenInclude(pa => pa.Attribute)
-            .FirstOrDefaultAsync(p => p.Id == positionId);
-
+        var position = await db.Positions.FirstOrDefaultAsync(p => p.Id == positionId);
         if (position is null)
             return OperationResult<CvDto>.Fail("Position not found");
 
@@ -89,29 +84,8 @@ public class CvService(AppDbContext db, IPositionService positionService) : ICvS
 
         if (await db.Cvs.AnyAsync(c => c.CandidateId == candidateId && c.PositionId == positionId))
             return OperationResult<CvDto>.Fail("You already have a CV for this position");
-
-        var profileValues = await db.CandidateAttributeValues
-            .Where(v => v.CandidateId == candidateId)
-            .ToDictionaryAsync(v => v.AttributeId);
-
+        
         var cv = new Cv { CandidateId = candidateId, PositionId = positionId, Status = CvStatus.Draft, Version = 1 };
-
-        foreach (var pa in position.PositionAttributes)
-        {
-            profileValues.TryGetValue(pa.AttributeId, out var profileValue);
-
-            cv.AttributeValues.Add(new CvAttributeValue
-            {
-                AttributeId = pa.AttributeId,
-                TextValue = profileValue?.TextValue,
-                NumericValue = profileValue?.NumericValue,
-                DateValue = profileValue?.DateValue,
-                BooleanValue = profileValue?.BooleanValue,
-                DateRangeStart = profileValue?.DateRangeStart,
-                DateRangeEnd = profileValue?.DateRangeEnd
-            });
-        }
-
         db.Cvs.Add(cv);
         await db.SaveChangesAsync();
 
@@ -133,7 +107,7 @@ public class CvService(AppDbContext db, IPositionService positionService) : ICvS
     public async Task<OperationResult<CvDto>> UpdateAttributeAsync(int cvId, int expectedVersion, UpdateCvAttributeRequest request)
     {
         var cv = await db.Cvs
-            .Include(c => c.AttributeValues)
+            .Include(c => c.Position).ThenInclude(p => p.PositionAttributes)
             .FirstOrDefaultAsync(c => c.Id == cvId);
 
         if (cv is null)
@@ -142,17 +116,14 @@ public class CvService(AppDbContext db, IPositionService positionService) : ICvS
         if (cv.Status == CvStatus.Published)
             return OperationResult<CvDto>.Fail("Published CVs cannot be edited directly. Unpublish it first.");
 
-        var cvValue = cv.AttributeValues.FirstOrDefault(v => v.AttributeId == request.AttributeId);
-        if (cvValue is null)
+        var isPartOfPosition = cv.Position.PositionAttributes.Any(pa => pa.AttributeId == request.AttributeId);
+        if (!isPartOfPosition)
             return OperationResult<CvDto>.Fail("This attribute is not part of the position");
-
-        cvValue.TextValue = request.TextValue;
-        cvValue.NumericValue = request.NumericValue;
-        cvValue.DateValue = request.DateValue.AsUtc();
-        cvValue.BooleanValue = request.BooleanValue;
-        cvValue.DateRangeStart = request.DateRangeStart.AsUtc();
-        cvValue.DateRangeEnd = request.DateRangeEnd.AsUtc();
         
+        var candidate = await db.Candidates.FirstOrDefaultAsync(c => c.Id == cv.CandidateId);
+        if (candidate is null)
+            return OperationResult<CvDto>.Fail("Candidate not found");
+
         var profileValue = await db.CandidateAttributeValues
             .FirstOrDefaultAsync(v => v.CandidateId == cv.CandidateId && v.AttributeId == request.AttributeId);
 
@@ -164,17 +135,13 @@ public class CvService(AppDbContext db, IPositionService positionService) : ICvS
 
         profileValue.TextValue = request.TextValue;
         profileValue.NumericValue = request.NumericValue;
-        profileValue.DateValue = request.DateValue.AsUtc();
+        profileValue.DateValue = request.DateValue;
         profileValue.BooleanValue = request.BooleanValue;
-        profileValue.DateRangeStart = request.DateRangeStart.AsUtc();
-        profileValue.DateRangeEnd = request.DateRangeEnd.AsUtc();
+        profileValue.DateRangeStart = request.DateRangeStart;
+        profileValue.DateRangeEnd = request.DateRangeEnd;
         
-        var candidate = await db.Candidates.FirstOrDefaultAsync(c => c.Id == cv.CandidateId);
-        if (candidate is not null)
-            candidate.Version++;
-
-        cv.Version++;
-        db.Entry(cv).Property(c => c.Version).OriginalValue = expectedVersion;
+        candidate.Version++;
+        db.Entry(candidate).Property(c => c.Version).OriginalValue = expectedVersion;
 
         try
         {
@@ -192,7 +159,6 @@ public class CvService(AppDbContext db, IPositionService positionService) : ICvS
     public async Task<OperationResult<CvDto>> PublishAsync(int cvId, int expectedVersion)
     {
         var cv = await db.Cvs
-            .Include(c => c.AttributeValues)
             .Include(c => c.Position).ThenInclude(p => p.PositionAttributes)
             .FirstOrDefaultAsync(c => c.Id == cvId);
 
@@ -202,15 +168,19 @@ public class CvService(AppDbContext db, IPositionService positionService) : ICvS
         var requiredAttributeIds = cv.Position.PositionAttributes
             .Where(pa => pa.Required)
             .Select(pa => pa.AttributeId)
-            .ToHashSet();
+            .ToList();
 
-        var hasEmptyRequired = cv.AttributeValues
-            .Where(v => requiredAttributeIds.Contains(v.AttributeId))
-            .Any(v => v.TextValue is null && v.NumericValue is null && v.DateValue is null &&
-                      v.BooleanValue is null && v.DateRangeStart is null && v.DateRangeEnd is null);
+        if (requiredAttributeIds.Count > 0)
+        {
+            var filledCount = await db.CandidateAttributeValues.CountAsync(v =>
+                v.CandidateId == cv.CandidateId &&
+                requiredAttributeIds.Contains(v.AttributeId) &&
+                (v.TextValue != null || v.NumericValue != null || v.DateValue != null ||
+                 v.BooleanValue != null || v.DateRangeStart != null));
 
-        if (hasEmptyRequired)
-            return OperationResult<CvDto>.Fail("Fill in all required attributes before publishing");
+            if (filledCount < requiredAttributeIds.Count)
+                return OperationResult<CvDto>.Fail("Fill in all required attributes before publishing");
+        }
 
         cv.Status = CvStatus.Published;
         cv.Version++;
@@ -284,10 +254,15 @@ public class CvService(AppDbContext db, IPositionService positionService) : ICvS
             })
             .ToList();
     }
-
+    
     private async Task<CvDto> ToDtoAsync(Cv cv, int? viewingUserId)
     {
         var hasAccess = await positionService.CandidateCanAccessAsync(cv.PositionId, cv.CandidateId);
+
+        var attributeIds = cv.Position.PositionAttributes.Select(pa => pa.AttributeId).ToList();
+        var profileValues = await db.CandidateAttributeValues
+            .Where(v => v.CandidateId == cv.CandidateId && attributeIds.Contains(v.AttributeId))
+            .ToDictionaryAsync(v => v.AttributeId);
 
         return new CvDto
         {
@@ -298,22 +273,27 @@ public class CvService(AppDbContext db, IPositionService positionService) : ICvS
             PositionName = cv.Position.Name,
             Status = cv.Status,
             Version = cv.Version,
+            ProfileVersion = cv.Candidate.Version,
             LikeCount = cv.Likes.Count,
             LikedByCurrentUser = viewingUserId.HasValue && cv.Likes.Any(l => l.UserId == viewingUserId.Value),
             CandidateHasAccess = hasAccess,
-            Attributes = cv.AttributeValues.Select(v => new CvAttributeValueDto
+            Attributes = cv.Position.PositionAttributes.Select(pa =>
             {
-                AttributeId = v.AttributeId,
-                AttributeName = v.Attribute.Name,
-                DataType = v.Attribute.DataType,
-                Required = cv.Position.PositionAttributes.First(pa => pa.AttributeId == v.AttributeId).Required,
-                SelectOptions = v.Attribute.SelectOptions.OrderBy(o => o.OrderIndex).Select(o => o.OptionValue).ToList(),
-                TextValue = v.TextValue,
-                NumericValue = v.NumericValue,
-                DateValue = v.DateValue,
-                BooleanValue = v.BooleanValue,
-                DateRangeStart = v.DateRangeStart,
-                DateRangeEnd = v.DateRangeEnd
+                profileValues.TryGetValue(pa.AttributeId, out var value);
+                return new CvAttributeValueDto
+                {
+                    AttributeId = pa.AttributeId,
+                    AttributeName = pa.Attribute.Name,
+                    DataType = pa.Attribute.DataType,
+                    Required = pa.Required,
+                    SelectOptions = pa.Attribute.SelectOptions.OrderBy(o => o.OrderIndex).Select(o => o.OptionValue).ToList(),
+                    TextValue = value?.TextValue,
+                    NumericValue = value?.NumericValue,
+                    DateValue = value?.DateValue,
+                    BooleanValue = value?.BooleanValue,
+                    DateRangeStart = value?.DateRangeStart,
+                    DateRangeEnd = value?.DateRangeEnd
+                };
             }).ToList(),
             Projects = ComputeProjects(cv.Candidate, cv.Position)
         };
@@ -323,9 +303,8 @@ public class CvService(AppDbContext db, IPositionService positionService) : ICvS
         await db.Cvs
             .Include(c => c.Candidate).ThenInclude(cand => cand.User)
             .Include(c => c.Candidate).ThenInclude(cand => cand.Projects).ThenInclude(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
-            .Include(c => c.Position).ThenInclude(p => p.PositionAttributes)
+            .Include(c => c.Position).ThenInclude(p => p.PositionAttributes).ThenInclude(pa => pa.Attribute).ThenInclude(a => a.SelectOptions)
             .Include(c => c.Position).ThenInclude(p => p.PositionTags).ThenInclude(pt => pt.Tag)
-            .Include(c => c.AttributeValues).ThenInclude(v => v.Attribute).ThenInclude(a => a.SelectOptions)
             .Include(c => c.Likes)
             .FirstOrDefaultAsync(c => c.Id == cvId);
 }

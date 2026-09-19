@@ -31,7 +31,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Tag> Tags => Set<Tag>();
 
     public DbSet<Cv> Cvs => Set<Cv>();
-    public DbSet<CvAttributeValue> CvAttributeValues => Set<CvAttributeValue>();
     public DbSet<CvLike> CvLikes => Set<CvLike>();
 
     public DbSet<Discussion> Discussions => Set<Discussion>();
@@ -98,10 +97,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasMethod("GIN");
         builder.Entity<CandidateProject>()
             .HasIndex(cp => cp.CandidateId);
-        builder.Entity<CvAttributeValue>()
-            .HasIndex(cav => cav.CvId);
-        builder.Entity<CvAttributeValue>()
-            .HasIndex(cav => cav.AttributeId);
         builder.Entity<DiscussionMessage>()
             .HasIndex(dm => dm.DiscussionId);
         builder.Entity<DiscussionMessage>()
