@@ -203,6 +203,15 @@ else
     </ul>
 }
 
+@if (User.Identity?.IsAuthenticated == true)
+{
+    @await Html.PartialAsync("_DiscussionWidget", new CVManagementSystem.Models.ViewModels.DiscussionWidgetViewModel
+    {
+        PositionId = Model.PositionId,
+        CanLinkToProfiles = User.IsInRole("Recruiter") || User.IsInRole("Administrator")
+    })
+}
+
 @functions {
     private IHtmlContent RenderReadOnly(
         CvAttributeValueDto attr,
