@@ -18,6 +18,7 @@ using CVManagementSystem.Services.Search;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Localization;
@@ -241,6 +242,11 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 });
 var app = builder.Build();
 
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
 static void ReplaceIdentityWithAppClaims(ClaimsIdentity identity, User user)
 {
     foreach (var claim in identity.Claims.ToList())
@@ -256,6 +262,7 @@ static void ReplaceIdentityWithAppClaims(ClaimsIdentity identity, User user)
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
     if (!db.Roles.Any())
     {
         db.Roles.AddRange(
@@ -288,7 +295,6 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
