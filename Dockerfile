@@ -1,11 +1,11 @@
 ﻿FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-COPY *.csproj .
-RUN dotnet restore
+COPY CVManagementSystem/*.csproj ./CVManagementSystem/
+RUN dotnet restore ./CVManagementSystem/CVManagementSystem.csproj
 
 COPY . .
-RUN dotnet publish -c Release -o /app
+RUN dotnet publish ./CVManagementSystem/CVManagementSystem.csproj -c Release -o /app
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
