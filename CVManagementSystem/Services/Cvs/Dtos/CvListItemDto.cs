@@ -9,4 +9,5 @@ public class CvListItemDto
     public string PositionName { get; set; } = string.Empty;
     public CvStatus Status { get; set; }
     public int LikeCount { get; set; }
+    public int CandidateId { get; set; }
 }

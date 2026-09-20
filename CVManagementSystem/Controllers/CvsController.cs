@@ -172,4 +172,12 @@ public class CvsController(
             _ => null
         };
     }
+    
+    [Authorize(Roles = "Recruiter,Administrator")]
+    public async Task<IActionResult> ByTag(string tag)
+    {
+        var cvs = await cvService.GetPublishedByTagAsync(tag);
+        ViewBag.Tag = tag;
+        return View(cvs);
+    }
 }

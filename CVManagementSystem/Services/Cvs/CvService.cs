@@ -229,7 +229,8 @@ public class CvService(AppDbContext db, IPositionService positionService) : ICvS
         CandidateName = c.Candidate.User.Fullname,
         PositionName = c.Position.Name,
         Status = c.Status,
-        LikeCount = c.Likes.Count
+        LikeCount = c.Likes.Count,
+        CandidateId = c.CandidateId
     };
 
     private static List<CvProjectDto> ComputeProjects(Candidate candidate, Position position)
@@ -307,4 +308,31 @@ public class CvService(AppDbContext db, IPositionService positionService) : ICvS
             .Include(c => c.Position).ThenInclude(p => p.PositionTags).ThenInclude(pt => pt.Tag)
             .Include(c => c.Likes)
             .FirstOrDefaultAsync(c => c.Id == cvId);
+    
+    public async Task<List<CvListItemDto>> GetPublishedByTagAsync(string tag)
+    {
+        var candidateIds = await db.ProjectTags
+            .Where(pt => pt.Tag.Name == tag)
+            .Select(pt => pt.CandidateProject.CandidateId)
+            .Distinct()
+            .ToListAsync();
+
+        if (candidateIds.Count == 0)
+            return [];
+        
+        var positionIds = await db.Cvs
+            .Where(c => c.Status == CvStatus.Published && candidateIds.Contains(c.CandidateId))
+            .Select(c => c.PositionId)
+            .Distinct()
+            .ToListAsync();
+
+        var results = new List<CvListItemDto>();
+        foreach (var positionId in positionIds)
+        {
+            var cvsForPosition = await GetPublishedForPositionAsync(positionId);
+            results.AddRange(cvsForPosition.Where(c => candidateIds.Contains(c.CandidateId)));
+        }
+
+        return results;
+    }
 }

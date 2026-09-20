@@ -1,10 +1,10 @@
 @{
-    ViewData["Title"] = "Account Settings";
+    ViewData["Title"] = Loc["account.manage.title"];
     var linked = (List<string>)ViewBag.LinkedProviders;
     var hasPassword = (bool)ViewBag.HasPassword;
 }
 
-<h2>Account Settings</h2>
+<h2>@Loc["account.manage.title"]</h2>
 
 @if (TempData["Error"] != null)
 {
@@ -15,15 +15,15 @@
     <div class="alert alert-success">@TempData["Success"]</div>
 }
 
-<h5>Password</h5>
+<h5>@Loc["account.manage.password"]</h5>
 <p class="text-muted">
-    @(hasPassword ? "You have a password set for this account." : "You signed up with a social account and don't have a password yet.")
+    @(hasPassword ? Loc["account.manage.hasPassword"] : Loc["account.manage.noPassword"])
 </p>
 <a asp-action="SetPassword" class="btn btn-sm btn-outline-secondary mb-4">
-    @(hasPassword ? "Change password" : "Set a password")
+    @(hasPassword ? Loc["account.manage.changePassword"] : Loc["account.manage.setPassword"])
 </a>
 
-<h5>Linked accounts</h5>
+<h5>@Loc["account.manage.linkedAccounts"]</h5>
 <ul class="list-unstyled">
     @foreach (var (provider, icon) in new[] { ("Google", "bi-google"), ("GitHub", "bi-github") })
     {
@@ -33,14 +33,14 @@
             {
                 <form asp-action="UnlinkExternalLogin" method="post">
                     <input type="hidden" name="provider" value="@provider" />
-                    <button type="submit" class="btn btn-sm btn-outline-danger">Unlink</button>
+                    <button type="submit" class="btn btn-sm btn-outline-danger">@Loc["account.manage.unlink"]</button>
                 </form>
             }
             else
             {
                 <form asp-action="LinkExternalLogin" method="post">
                     <input type="hidden" name="provider" value="@provider" />
-                    <button type="submit" class="btn btn-sm btn-outline-secondary">Link</button>
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">@Loc["account.manage.link"]</button>
                 </form>
             }
         </li>

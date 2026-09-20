@@ -106,11 +106,10 @@
             @foreach (var tag in Model.TagCloud)
             {
                 var size = 0.8 + Math.Min(tag.Count, 10) * 0.15;
-
-                <span class="badge bg-secondary me-1 mb-1"
-                      style="font-size: @(size.ToString(System.Globalization.CultureInfo.InvariantCulture))rem;">
-                    @tag.Name (@tag.Count)
-                </span>
+                var href = (User.IsInRole("Recruiter") || User.IsInRole("Administrator"))
+                    ? Url.Action("ByTag", "Cvs", new { tag = tag.Name })
+                    : Url.Action("Index", "Positions", new { tag = tag.Name });
+                <a href="@href" class="badge bg-secondary me-1 mb-1 text-decoration-none" style="font-size: @(size.ToString(System.Globalization.CultureInfo.InvariantCulture))rem;">@tag.Name (@tag.Count)</a>
             }
         </div>
     </div>

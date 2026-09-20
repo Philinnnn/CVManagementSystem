@@ -28,7 +28,8 @@ public class AuthService(AppDbContext db, IPasswordHasher<User> hasher) : IAuthS
         {
             Login = login,
             Email = email,
-            Fullname = fullname
+            Fullname = fullname,
+            HasPassword = true
         };
         user.Passhash = hasher.HashPassword(user, password);
         user.UserRoles.Add(new UserRole { Role = candidateRole });

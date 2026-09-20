@@ -8,7 +8,7 @@ using Common;
 
 public class ExternalAuthService(AppDbContext db) : IExternalAuthService
 {
-    public async Task<OperationResult<User>> LoginAsync(string provider, string providerKey, string? email, string? name)
+    public async Task<OperationResult<(User User, bool IsNewUser)>> LoginAsync(string provider, string providerKey, string? email, string? name)
     {
         var existingLogin = await db.ExternalLogins
             .Include(el => el.User).ThenInclude(u => u.UserRoles).ThenInclude(ur => ur.Role)
@@ -17,14 +17,14 @@ public class ExternalAuthService(AppDbContext db) : IExternalAuthService
         if (existingLogin is not null)
         {
             if (existingLogin.User.IsBlocked)
-                return OperationResult<User>.Fail("This account has been blocked");
+                return OperationResult<(User, bool)>.Fail("This account has been blocked");
 
-            return OperationResult<User>.Ok(existingLogin.User);
+            return OperationResult<(User, bool)>.Ok((existingLogin.User, false));
         }
         
         if (!string.IsNullOrWhiteSpace(email) && await db.Users.AnyAsync(u => u.Email == email))
         {
-            return OperationResult<User>.Fail(
+            return OperationResult<(User, bool)>.Fail(
                 "An account with this email already exists. Log in with your password and link this provider from Account Settings.");
         }
 
@@ -51,7 +51,7 @@ public class ExternalAuthService(AppDbContext db) : IExternalAuthService
         await db.SaveChangesAsync();
 
         await db.Entry(user).Collection(u => u.UserRoles).Query().Include(ur => ur.Role).LoadAsync();
-        return OperationResult<User>.Ok(user);
+        return OperationResult<(User, bool)>.Ok((user, true));
     }
 
     public async Task<OperationResult> LinkAsync(int userId, string provider, string providerKey)

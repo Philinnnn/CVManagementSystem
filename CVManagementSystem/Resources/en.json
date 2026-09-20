@@ -9,6 +9,7 @@
   "nav.register": "Register",
   "nav.logout": "Logout",
   "nav.signedInAs": "Signed in as",
+  "nav.accountSettings": "Account Settings",
 
   "action.save": "Save",
   "action.cancel": "Cancel",
@@ -34,6 +35,25 @@
   "account.register.passwordLabel": "Password",
   "account.register.confirmPasswordLabel": "Confirm password",
   "account.register.submit": "Register",
+
+  "account.manage.title": "Account Settings",
+  "account.manage.password": "Password",
+  "account.manage.hasPassword": "You have a password set for this account.",
+  "account.manage.noPassword": "You signed up with a social account and don't have a password yet.",
+  "account.manage.setPassword": "Set a password",
+  "account.manage.changePassword": "Change password",
+  "account.manage.linkedAccounts": "Linked accounts",
+  "account.manage.link": "Link",
+  "account.manage.unlink": "Unlink",
+
+  "account.setPassword.title": "Set Password",
+  "account.setPassword.newPassword": "New password",
+  "account.setPassword.confirmPassword": "Confirm password",
+  "account.setPassword.save": "Save",
+  "account.setPassword.cancel": "Cancel",
+  "account.setPassword.mismatch": "Passwords do not match",
+  "account.setPassword.success": "Password set successfully.",
+  "account.setPassword.needsPasswordNotice": "You signed in with an external provider. Set a password below so you can also sign in with your email.",
 
   "home.title": "Dashboard",
   "home.stats.cvsToday": "CVs today",
@@ -224,6 +244,8 @@
   "positions.index.open": "Open",
   "positions.index.closed": "Closed",
   "positions.index.selected": "selected",
+  "positions.index.filteredByTag": "Filtered by tag:",
+  "positions.index.clearFilter": "Clear filter",
 
   "search.title": "Search",
   "search.resultsFor": "Search results for",

@@ -9,6 +9,7 @@
     "nav.register": "Регистрация",
     "nav.logout": "Выйти",
     "nav.signedInAs": "Вы вошли как",
+    "nav.accountSettings": "Настройки аккаунта",
     
     "action.save": "Сохранить",
     "action.cancel": "Отмена",
@@ -34,6 +35,25 @@
     "account.register.passwordLabel": "Пароль",
     "account.register.confirmPasswordLabel": "Подтвердите пароль",
     "account.register.submit": "Зарегистрироваться",
+
+    "account.manage.title": "Настройки аккаунта",
+    "account.manage.password": "Пароль",
+    "account.manage.hasPassword": "У этого аккаунта уже задан пароль.",
+    "account.manage.noPassword": "Вы зарегистрировались через соцсеть, и пароль ещё не задан.",
+    "account.manage.setPassword": "Задать пароль",
+    "account.manage.changePassword": "Изменить пароль",
+    "account.manage.linkedAccounts": "Привязанные аккаунты",
+    "account.manage.link": "Привязать",
+    "account.manage.unlink": "Отвязать",
+
+    "account.setPassword.title": "Задать пароль",
+    "account.setPassword.newPassword": "Новый пароль",
+    "account.setPassword.confirmPassword": "Подтвердите пароль",
+    "account.setPassword.save": "Сохранить",
+    "account.setPassword.cancel": "Отмена",
+    "account.setPassword.mismatch": "Пароли не совпадают",
+    "account.setPassword.success": "Пароль успешно задан.",
+    "account.setPassword.needsPasswordNotice": "Вы вошли через внешний провайдер. Задайте пароль ниже, чтобы также иметь возможность входить по email.",
     
     "home.title": "Панель управления",
     "home.stats.cvsToday": "Резюме за сегодня",
@@ -228,6 +248,8 @@
     "positions.index.open": "Открыта",
     "positions.index.closed": "Закрыта",
     "positions.index.selected": "выбрано",
+    "positions.index.filteredByTag": "Фильтр по тегу:",
+    "positions.index.clearFilter": "Сбросить фильтр",
     
     "search.title": "Поиск",
     "search.resultsFor": "Результаты поиска для",

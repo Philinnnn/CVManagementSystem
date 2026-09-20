@@ -14,4 +14,5 @@ public interface ICvService
     Task<OperationResult<CvDto>> PublishAsync(int cvId, int expectedVersion);
     Task<OperationResult> LikeAsync(int cvId, int recruiterUserId);
     Task<OperationResult> UnlikeAsync(int cvId, int recruiterUserId);
+    Task<List<CvListItemDto>> GetPublishedByTagAsync(string tag);
 }

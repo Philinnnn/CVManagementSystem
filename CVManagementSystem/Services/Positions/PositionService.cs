@@ -293,4 +293,19 @@ public class PositionService(AppDbContext db) : IPositionService
         }).ToList(),
         CvCount = position.Cvs.Count
     };
+    
+    public async Task<List<PositionListItemDto>> SearchByTagAsync(string tag) =>
+        await db.Positions
+            .Where(p => p.PositionTags.Any(pt => pt.Tag.Name == tag))
+            .OrderByDescending(p => p.CreatedAt)
+            .Select(p => new PositionListItemDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                ShortDescription = p.ShortDescription,
+                CreatedAt = p.CreatedAt,
+                Open = p.Open,
+                CvCount = p.Cvs.Count
+            })
+            .ToListAsync();
 }

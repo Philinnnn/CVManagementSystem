@@ -104,7 +104,10 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
                 return;
             }
 
-            ReplaceIdentityWithAppClaims(context.Identity!, loginResult.Value!);
+            ReplaceIdentityWithAppClaims(context.Identity!, loginResult.Value!.User);
+
+            if (loginResult.Value.IsNewUser)
+                context.Properties!.RedirectUri = "/Account/SetPassword?fromSocialSignup=true";
         };
         options.Events.OnRemoteFailure = context =>
         {
@@ -202,14 +205,17 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
                     ?? context.Identity.FindFirst("urn:github:login")?.Value;
 
                 var authService = context.HttpContext.RequestServices.GetRequiredService<IExternalAuthService>();
-                var loginResult = await authService.LoginAsync("GitHub", providerKey, email, name);
+                var loginResult = await authService.LoginAsync("Google", providerKey, email, name);
                 if (!loginResult.Success)
                 {
                     context.Fail(loginResult.Error ?? "Login failed");
                     return;
                 }
 
-                ReplaceIdentityWithAppClaims(context.Identity!, loginResult.Value!);
+                ReplaceIdentityWithAppClaims(context.Identity!, loginResult.Value!.User);
+
+                if (loginResult.Value.IsNewUser)
+                    context.Properties!.RedirectUri = "/Account/SetPassword?fromSocialSignup=true";
             },
             OnRemoteFailure = context =>
             {

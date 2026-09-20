@@ -12,4 +12,5 @@ public interface IPositionService
     Task<OperationResult<PositionDto>> DuplicateAsync(int positionId, int creatorId);
     Task<OperationResult> DeleteAsync(int id);
     Task<bool> CandidateCanAccessAsync(int positionId, int candidateId);
+    Task<List<PositionListItemDto>> SearchByTagAsync(string tag);
 }

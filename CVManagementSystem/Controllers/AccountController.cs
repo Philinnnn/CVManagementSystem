@@ -1,4 +1,5 @@
 using CVManagementSystem.Services.Common;
+using CVManagementSystem.Services.Localization;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 
@@ -177,16 +178,22 @@ public class AccountController(IAuthService authService) : Controller
 
     [HttpGet]
     [Authorize]
-    public IActionResult SetPassword() => View();
+    public IActionResult SetPassword(bool fromSocialSignup, [FromServices] IAppLocalizer appLocalizer)
+    {
+        if (fromSocialSignup)
+            TempData["Notice"] = appLocalizer["account.setPassword.needsPasswordNotice"];
+
+        return View();
+    }
 
     [HttpPost]
     [Authorize]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> SetPassword(string newPassword, string confirmPassword)
+    public async Task<IActionResult> SetPassword(string newPassword, string confirmPassword, [FromServices] IAppLocalizer appLocalizer)
     {
         if (newPassword != confirmPassword)
         {
-            ModelState.AddModelError(string.Empty, "Passwords do not match");
+            ModelState.AddModelError(string.Empty, appLocalizer["account.setPassword.mismatch"]);
             return View();
         }
 
@@ -200,8 +207,7 @@ public class AccountController(IAuthService authService) : Controller
             return View();
         }
 
-        TempData["Success"] = "Password set successfully.";
+        TempData["Success"] = appLocalizer["account.setPassword.success"];
         return RedirectToAction(nameof(Manage));
     }
-    
 }

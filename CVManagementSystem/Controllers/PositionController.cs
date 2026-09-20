@@ -19,9 +19,13 @@ public class PositionsController(
     ICandidateProfileService candidateProfileService) : Controller
 {
     [AllowAnonymous]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? tag)
     {
-        var positions = await positionService.GetAllAsync();
+        var positions = string.IsNullOrWhiteSpace(tag)
+            ? await positionService.GetAllAsync()
+            : await positionService.SearchByTagAsync(tag);
+
+        ViewBag.Tag = tag;
         return View(positions);
     }
 

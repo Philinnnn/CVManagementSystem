@@ -1,0 +1,28 @@
+@model List<CVManagementSystem.Services.Cvs.Dtos.CvListItemDto>
+@{
+    ViewData["Title"] = "Tagged CVs";
+}
+
+<h2>CVs tagged "@ViewBag.Tag"</h2>
+
+@if (Model.Count == 0)
+{
+    <p class="text-muted">No published CVs found with this tag.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead><tr><th>Candidate</th><th>Position</th><th>Status</th><th>Likes</th></tr></thead>
+        <tbody>
+        @foreach (var cv in Model)
+        {
+            <tr>
+                <td><a asp-action="Details" asp-route-id="@cv.Id">@cv.CandidateName</a></td>
+                <td>@cv.PositionName</td>
+                <td>@cv.Status</td>
+                <td>@cv.LikeCount</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
