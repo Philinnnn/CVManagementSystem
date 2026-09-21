@@ -14,7 +14,7 @@ using Models.Identity;
 using Models.ViewModels;
 using Services.Auth;
 
-public class AccountController(IAuthService authService) : Controller
+public class AccountController(IAuthService authService, IAppLocalizer appLocalizer) : Controller
 {
     [HttpGet]
     [AllowAnonymous]
@@ -35,7 +35,7 @@ public class AccountController(IAuthService authService) : Controller
         var (success, error, user) = await authService.ValidateCredentialsAsync(model.Email, model.Password);
         if (!success || user is null)
         {
-            ModelState.AddModelError(string.Empty, error ?? "Login error");
+            ModelState.AddModelError(string.Empty, error is not null ? appLocalizer[error] : appLocalizer["account.login.error"]);
             return View(model);
         }
 
@@ -64,7 +64,7 @@ public class AccountController(IAuthService authService) : Controller
 
         if (!success || user is null)
         {
-            ModelState.AddModelError(string.Empty, error ?? "Registration error");
+            ModelState.AddModelError(string.Empty, error is not null ? appLocalizer[error] : appLocalizer["account.register.error"]);
             return View(model);
         }
 
@@ -178,7 +178,7 @@ public class AccountController(IAuthService authService) : Controller
 
     [HttpGet]
     [Authorize]
-    public IActionResult SetPassword(bool fromSocialSignup, [FromServices] IAppLocalizer appLocalizer)
+    public IActionResult SetPassword(bool fromSocialSignup)
     {
         if (fromSocialSignup)
             TempData["Notice"] = appLocalizer["account.setPassword.needsPasswordNotice"];
@@ -189,7 +189,7 @@ public class AccountController(IAuthService authService) : Controller
     [HttpPost]
     [Authorize]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> SetPassword(string newPassword, string confirmPassword, [FromServices] IAppLocalizer appLocalizer)
+    public async Task<IActionResult> SetPassword(string newPassword, string confirmPassword)
     {
         if (newPassword != confirmPassword)
         {
@@ -203,7 +203,7 @@ public class AccountController(IAuthService authService) : Controller
         var (success, error) = await authService.SetPasswordAsync(userId, newPassword);
         if (!success)
         {
-            ModelState.AddModelError(string.Empty, error ?? "Failed to set password");
+            ModelState.AddModelError(string.Empty, error is not null ? appLocalizer[error] : appLocalizer["account.setPassword.failed"]);
             return View();
         }
 

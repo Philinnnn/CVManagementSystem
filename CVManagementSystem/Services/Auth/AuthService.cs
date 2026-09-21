@@ -15,14 +15,14 @@ public class AuthService(AppDbContext db, IPasswordHasher<User> hasher) : IAuthS
         email = email.Trim();
 
         if (await db.Users.AnyAsync(u => u.Login == login))
-            return (false, "User with such login already exists", null);
+            return (false, "account.register.loginTaken", null);
 
         if (await db.Users.AnyAsync(u => u.Email == email))
-            return (false, "User with such email already exists", null);
+            return (false, "account.register.emailTaken", null);
 
         var candidateRole = await db.Roles.FirstOrDefaultAsync(r => r.Name == "Candidate");
         if (candidateRole is null)
-            return (false, "Candidate role not found — check seed data", null);
+            return (false, "account.register.roleNotSeeded", null);
 
         var user = new User
         {
@@ -58,14 +58,14 @@ public class AuthService(AppDbContext db, IPasswordHasher<User> hasher) : IAuthS
             .FirstOrDefaultAsync(u => u.Email == email);
 
         if (user is null)
-            return (false, "Invalid email or password", null);
+            return (false, "account.login.invalidCredentials", null);
 
         if (user.IsBlocked)
-            return (false, "This account has been blocked", null);
+            return (false, "account.login.blocked", null);
 
         var result = hasher.VerifyHashedPassword(user, user.Passhash, password);
         if (result == PasswordVerificationResult.Failed)
-            return (false, "Invalid email or password", null);
+            return (false, "account.login.invalidCredentials", null);
 
         return (true, null, user);
     }
@@ -73,11 +73,11 @@ public class AuthService(AppDbContext db, IPasswordHasher<User> hasher) : IAuthS
     public async Task<(bool Success, string? Error)> SetPasswordAsync(int userId, string newPassword)
     {
         if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 6)
-            return (false, "Password must be at least 6 characters long");
+            return (false, "account.setPassword.tooShort");
 
         var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
         if (user is null)
-            return (false, "User not found");
+            return (false, "account.setPassword.userNotFound");
 
         user.Passhash = hasher.HashPassword(user, newPassword);
         user.HasPassword = true;

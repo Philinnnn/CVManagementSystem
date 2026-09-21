@@ -55,6 +55,16 @@
   "account.setPassword.success": "Password set successfully.",
   "account.setPassword.needsPasswordNotice": "You signed in with an external provider. Set a password below so you can also sign in with your email.",
 
+  "account.login.invalidCredentials": "Invalid email or password",
+  "account.login.blocked": "This account has been blocked",
+  "account.login.error": "Login error",
+  "account.register.loginTaken": "A user with this login already exists",
+  "account.register.emailTaken": "A user with this email already exists",
+  "account.register.roleNotSeeded": "Candidate role not found — check seed data",
+  "account.setPassword.tooShort": "Password must be at least 6 characters long",
+  "account.setPassword.userNotFound": "User not found",
+  "account.register.error": "Registration error",
+
   "home.title": "Dashboard",
   "home.stats.cvsToday": "CVs today",
   "home.stats.positions": "Positions",

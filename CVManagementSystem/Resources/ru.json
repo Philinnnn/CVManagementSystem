@@ -54,6 +54,16 @@
     "account.setPassword.mismatch": "Пароли не совпадают",
     "account.setPassword.success": "Пароль успешно задан.",
     "account.setPassword.needsPasswordNotice": "Вы вошли через внешний провайдер. Задайте пароль ниже, чтобы также иметь возможность входить по email.",
+
+    "account.login.invalidCredentials": "Неверный email или пароль",
+    "account.login.blocked": "Этот аккаунт заблокирован",
+    "account.login.error": "Ошибка входа",
+    "account.register.loginTaken": "Пользователь с таким логином уже существует",
+    "account.register.emailTaken": "Пользователь с таким email уже существует",
+    "account.register.roleNotSeeded": "Роль Candidate не найдена — проверьте сидинг данных",
+    "account.setPassword.tooShort": "Пароль должен быть не короче 6 символов",
+    "account.setPassword.userNotFound": "Пользователь не найден",
+    "account.register.error": "Ошибка регистрации",
     
     "home.title": "Панель управления",
     "home.stats.cvsToday": "Резюме за сегодня",
