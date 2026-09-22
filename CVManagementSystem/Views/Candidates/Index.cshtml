@@ -438,28 +438,25 @@
                $"<option value=\"\">--</option>{options}</select>";
     }
 
-
-    private string RenderReadOnly(
-        AttributeValueDto attr,
-        string yesText,
-        string noText,
-        string emptyText)
+    private string RenderReadOnly(AttributeValueDto attr, string yesText, string noText, string emptyText)
     {
+        if (attr.IsEmpty)
+            return $"<em>{System.Net.WebUtility.HtmlEncode(emptyText)}</em>";
+
+        if (attr.DataType == "Text")
+        {
+            return $@"<div class=""markdown-render""></div><textarea class=""markdown-source d-none"" readonly>{System.Net.WebUtility.HtmlEncode(attr.TextValue)}</textarea>";
+        }
+
         var display = attr.DataType switch
         {
             "Boolean" => attr.BooleanValue == true ? yesText : noText,
-            "Period" =>
-                $"{attr.DateRangeStart:yyyy-MM-dd} — {attr.DateRangeEnd:yyyy-MM-dd}",
-            "Date" =>
-                attr.DateValue?.ToString("yyyy-MM-dd") ?? "",
-            "Numeric" =>
-                attr.NumericValue?.ToString() ?? "",
-            _ =>
-                attr.TextValue ?? ""
+            "Period" => $"{attr.DateRangeStart:yyyy-MM-dd} — {attr.DateRangeEnd:yyyy-MM-dd}",
+            "Date" => attr.DateValue?.ToString("yyyy-MM-dd") ?? "",
+            "Numeric" => attr.NumericValue?.ToString() ?? "",
+            _ => attr.TextValue ?? ""
         };
 
-        return attr.IsEmpty
-            ? $"<em>{System.Net.WebUtility.HtmlEncode(emptyText)}</em>"
-            : System.Net.WebUtility.HtmlEncode(display);
+        return System.Net.WebUtility.HtmlEncode(display);
     }
 }
