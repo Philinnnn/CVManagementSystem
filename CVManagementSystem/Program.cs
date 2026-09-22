@@ -242,10 +242,13 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 });
 var app = builder.Build();
 
-app.UseForwardedHeaders(new ForwardedHeadersOptions
+var forwardedHeadersOptions = new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-});
+};
+forwardedHeadersOptions.KnownNetworks.Clear();
+forwardedHeadersOptions.KnownProxies.Clear();
+app.UseForwardedHeaders(forwardedHeadersOptions);
 
 static void ReplaceIdentityWithAppClaims(ClaimsIdentity identity, User user)
 {
