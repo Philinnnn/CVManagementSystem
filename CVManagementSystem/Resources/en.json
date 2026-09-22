@@ -64,6 +64,11 @@
   "account.setPassword.tooShort": "Password must be at least 6 characters long",
   "account.setPassword.userNotFound": "User not found",
   "account.register.error": "Registration error",
+  
+  "account.unlink.noOtherMethod": "Set a password or link another provider before removing your only sign-in method.",
+  "account.unlink.notLinked": "This provider is not linked to your account",
+  "account.unlink.userNotFound": "User not found",
+  "account.link.alreadyLinkedToOther": "This provider account is already linked to a different user.",
 
   "home.title": "Dashboard",
   "home.stats.cvsToday": "CVs today",

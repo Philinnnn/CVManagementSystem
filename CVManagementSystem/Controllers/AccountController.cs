@@ -171,7 +171,7 @@ public class AccountController(IAuthService authService, IAppLocalizer appLocali
 
         var result = await externalAuthService.UnlinkAsync(userId, provider);
         if (!result.Success)
-            TempData["Error"] = result.Error;
+            TempData["Error"] = appLocalizer[result.Error!];
 
         return RedirectToAction(nameof(Manage));
     }

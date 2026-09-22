@@ -63,7 +63,7 @@ public class ExternalAuthService(AppDbContext db) : IExternalAuthService
         {
             return conflictingLink.UserId == userId
                 ? OperationResult.Ok()
-                : OperationResult.Fail("This provider account is already linked to a different user.");
+                : OperationResult.Fail("account.link.alreadyLinkedToOther");
         }
 
         db.ExternalLogins.Add(new ExternalLogin { UserId = userId, Provider = provider, ProviderKey = providerKey });
@@ -96,16 +96,16 @@ public class ExternalAuthService(AppDbContext db) : IExternalAuthService
     {
         var login = await db.ExternalLogins.FirstOrDefaultAsync(el => el.UserId == userId && el.Provider == provider);
         if (login is null)
-            return OperationResult.Fail("This provider is not linked to your account");
+            return OperationResult.Fail("account.unlink.notLinked");
 
         var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
         if (user is null)
-            return OperationResult.Fail("User not found");
+            return OperationResult.Fail("account.unlink.userNotFound");
 
         var remainingLinks = await db.ExternalLogins.CountAsync(el => el.UserId == userId && el.Provider != provider);
 
         if (!user.HasPassword && remainingLinks == 0)
-            return OperationResult.Fail("Set a password or link another provider before removing your only sign-in method.");
+            return OperationResult.Fail("account.unlink.noOtherMethod");
 
         db.ExternalLogins.Remove(login);
         await db.SaveChangesAsync();

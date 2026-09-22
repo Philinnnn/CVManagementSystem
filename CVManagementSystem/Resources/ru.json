@@ -64,6 +64,11 @@
     "account.setPassword.tooShort": "Пароль должен быть не короче 6 символов",
     "account.setPassword.userNotFound": "Пользователь не найден",
     "account.register.error": "Ошибка регистрации",
+
+    "account.unlink.noOtherMethod": "Задайте пароль или привяжите другого провайдера, прежде чем отвязывать единственный способ входа.",
+    "account.unlink.notLinked": "Этот провайдер не привязан к вашему аккаунту",
+    "account.unlink.userNotFound": "Пользователь не найден",
+    "account.link.alreadyLinkedToOther": "Этот аккаунт провайдера уже привязан к другому пользователю.",
     
     "home.title": "Панель управления",
     "home.stats.cvsToday": "Резюме за сегодня",
