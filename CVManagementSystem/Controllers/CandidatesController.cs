@@ -112,10 +112,11 @@ public class CandidatesController(
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CreateProject(int candidateId, SaveProjectRequest request)
+    public async Task<IActionResult> CreateProject(int candidateId, SaveProjectRequest request, string? rawTags)
     {
         if (!await CanEditAsync(candidateId))
             return Forbid();
+        request.Tags = SplitTags(rawTags);
 
         var result = await projectService.CreateAsync(candidateId, request);
         if (!result.Success)
@@ -216,4 +217,9 @@ public class CandidatesController(
             _ => null
         };
     }
+    
+    private static List<string> SplitTags(string? raw) =>
+        string.IsNullOrWhiteSpace(raw)
+            ? []
+            : raw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
 }
