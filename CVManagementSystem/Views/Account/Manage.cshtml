@@ -46,3 +46,18 @@
         </li>
     }
 </ul>
+
+<hr />
+<h5>@Loc["account.salesforce.sectionTitle"]</h5>
+@{
+    var syncedAt = (DateTime?)ViewBag.SalesforceSyncedAt;
+}
+@if (syncedAt.HasValue)
+{
+    <p class="text-muted">@Loc["account.salesforce.lastSynced"] @syncedAt.Value.ToString("yyyy-MM-dd HH:mm") UTC</p>
+}
+else
+{
+    <p class="text-muted">@Loc["account.salesforce.notSynced"]</p>
+}
+<a asp-action="SyncSalesforce" class="btn btn-sm btn-outline-secondary">@Loc["account.salesforce.syncButton"]</a>

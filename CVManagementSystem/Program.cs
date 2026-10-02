@@ -14,6 +14,7 @@ using CVManagementSystem.Services.Dashboard;
 using CVManagementSystem.Services.Discussions;
 using CVManagementSystem.Services.Localization;
 using CVManagementSystem.Services.Positions;
+using CVManagementSystem.Services.Salesforce;
 using CVManagementSystem.Services.Search;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -45,6 +46,8 @@ builder.Services.AddScoped<IUserAdminService, UserAdminService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<ISearchService, SearchService>();
 builder.Services.AddSingleton<IAppLocalizer, JsonAppLocalizer>();
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<ISalesforceService, SalesforceService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>

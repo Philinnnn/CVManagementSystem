@@ -1,5 +1,7 @@
 using CVManagementSystem.Services.Common;
 using CVManagementSystem.Services.Localization;
+using CVManagementSystem.Services.Salesforce;
+using CVManagementSystem.Services.Salesforce.Dtos;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 
@@ -158,6 +160,7 @@ public class AccountController(IAuthService authService, IAppLocalizer appLocali
 
         ViewBag.LinkedProviders = links;
         ViewBag.HasPassword = user?.HasPassword ?? true;
+        ViewBag.SalesforceSyncedAt = user?.SalesforceSyncedAt;
         return View();
     }
     
@@ -208,6 +211,34 @@ public class AccountController(IAuthService authService, IAppLocalizer appLocali
         }
 
         TempData["Success"] = appLocalizer["account.setPassword.success"];
+        return RedirectToAction(nameof(Manage));
+    }
+    
+    [HttpGet]
+    [Authorize]
+    public IActionResult SyncSalesforce() => View();
+
+    [HttpPost]
+    [Authorize]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SyncSalesforce(
+        SalesforceSyncRequest request,
+        [FromServices] ISalesforceService salesforceService,
+        [FromServices] Data.AppDbContext db)
+    {
+        if (!User.TryGetUserId(out var userId))
+            return RedirectToAction(nameof(Logout));
+
+        var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        if (user is null)
+            return RedirectToAction(nameof(Logout));
+
+        var result = await salesforceService.SyncUserAsync(user, request);
+
+        TempData[result.Success ? "Success" : "Error"] = result.Success
+            ? appLocalizer["account.salesforce.success"]
+            : string.Format(appLocalizer["account.salesforce.syncFailed"], result.Error);
+
         return RedirectToAction(nameof(Manage));
     }
 }
