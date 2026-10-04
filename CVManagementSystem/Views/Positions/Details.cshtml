@@ -4,6 +4,8 @@
     var cvs = (List<CvListItemDto>)ViewBag.Cvs;
 }
 
+<script>window.ticketPositionName = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Name));</script>
+
 <h2>@Model.Name</h2>
 <p>@Model.ShortDescription</p>
 

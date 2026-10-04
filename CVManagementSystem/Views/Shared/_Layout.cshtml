@@ -42,6 +42,7 @@
                     @if (User.IsInRole("Administrator"))
                     {
                         <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Index">@Loc["nav.users"]</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Integrations" asp-action="Index">Integrations</a></li>
                     }
                 </ul>
 
@@ -126,10 +127,61 @@
 </div>
 
 <footer class="footer text-muted">
-    <div class="container">
-        &copy; 2026 — CVManagementSystem
+    <div class="container d-flex justify-content-between align-items-center">
+        <span>&copy; 2026 — CVManagementSystem</span>
+        <a href="#" data-bs-toggle="modal" data-bs-target="#supportTicketModal">
+            <i class="bi bi-question-circle me-1"></i>@Loc["support.footerLink"]
+        </a>
     </div>
 </footer>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success position-fixed bottom-0 end-0 m-3" style="z-index: 2000;">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger position-fixed bottom-0 end-0 m-3" style="z-index: 2000;">@TempData["Error"]</div>
+}
+
+<div class="modal fade" id="supportTicketModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-controller="Support" asp-action="CreateTicket" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Loc["support.modal.title"]</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="link" id="ticket-link" />
+                    <input type="hidden" name="positionName" id="ticket-position" />
+                    <div class="mb-3">
+                        <label class="form-label">@Loc["support.modal.summaryLabel"]</label>
+                        <textarea name="summary" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@Loc["support.modal.priorityLabel"]</label>
+                        <select name="priority" class="form-select">
+                            <option value="High">@Loc["support.modal.priorityHigh"]</option>
+                            <option value="Average" selected>@Loc["support.modal.priorityAverage"]</option>
+                            <option value="Low">@Loc["support.modal.priorityLow"]</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">@Loc["support.modal.submit"]</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('supportTicketModal').addEventListener('show.bs.modal', () => {
+        document.getElementById('ticket-link').value = window.location.href;
+        document.getElementById('ticket-position').value = window.ticketPositionName || '';
+    });
+</script>
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

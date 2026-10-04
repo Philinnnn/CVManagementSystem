@@ -1,0 +1,14 @@
+@{
+    ViewData["Title"] = Loc["integrations.title"];
+    var connected = (bool)ViewBag.DropboxConnected;
+}
+
+<h2>@Loc["integrations.title"]</h2>
+
+<h5>@Loc["integrations.dropbox.title"]</h5>
+<p class="text-muted">
+    @(connected ? Loc["integrations.dropbox.connected"] : Loc["integrations.dropbox.notConnected"])
+</p>
+<a asp-action="ConnectDropbox" class="btn btn-sm btn-outline-secondary">
+    @(connected ? Loc["integrations.dropbox.reconnect"] : Loc["integrations.dropbox.connect"])
+</a>

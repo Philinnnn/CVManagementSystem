@@ -7,6 +7,8 @@
     var isRecruiter = (bool)ViewBag.IsRecruiter;
 }
 
+<script>window.ticketPositionName = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PositionName));</script>
+
 <h2>@Model.CandidateName — @Model.PositionName</h2>
 <p>
     @Loc["cvs.details.status"]: <strong>@(Model.Status == CVManagementSystem.Models.Cvs.CvStatus.Published ? Loc["cvs.status.published"] : Loc["cvs.status.draft"])</strong>

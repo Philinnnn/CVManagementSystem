@@ -12,6 +12,7 @@ using CVManagementSystem.Services.Candidates;
 using CVManagementSystem.Services.Cvs;
 using CVManagementSystem.Services.Dashboard;
 using CVManagementSystem.Services.Discussions;
+using CVManagementSystem.Services.Integrations;
 using CVManagementSystem.Services.Localization;
 using CVManagementSystem.Services.Positions;
 using CVManagementSystem.Services.Salesforce;
@@ -48,6 +49,7 @@ builder.Services.AddScoped<ISearchService, SearchService>();
 builder.Services.AddSingleton<IAppLocalizer, JsonAppLocalizer>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<ISalesforceService, SalesforceService>();
+builder.Services.AddScoped<IDropboxService, DropboxService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>

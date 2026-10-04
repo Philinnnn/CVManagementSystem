@@ -1,3 +1,5 @@
+using CVManagementSystem.Models.Integrations;
+
 namespace CVManagementSystem.Data;
 
 using Models.Attributes;
@@ -35,7 +37,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<Discussion> Discussions => Set<Discussion>();
     public DbSet<DiscussionMessage> DiscussionMessages => Set<DiscussionMessage>();
-
+    public DbSet<DropboxCredential> DropboxCredentials => Set<DropboxCredential>();
+    
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
