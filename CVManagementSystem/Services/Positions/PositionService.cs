@@ -308,4 +308,110 @@ public class PositionService(AppDbContext db) : IPositionService
                 CvCount = p.Cvs.Count
             })
             .ToListAsync();
+    
+    public async Task<string> GetOrCreateApiTokenAsync(int positionId)
+    {
+        var existing = await db.PositionApiTokens.FirstOrDefaultAsync(t => t.PositionId == positionId);
+        if (existing is not null)
+            return existing.Token;
+
+        var token = Guid.NewGuid().ToString("N");
+        db.PositionApiTokens.Add(new PositionApiToken { PositionId = positionId, Token = token });
+        await db.SaveChangesAsync();
+
+        return token;
+    }
+
+    public async Task<PositionAggregateDto?> GetAggregateByTokenAsync(string token)
+    {
+        var apiToken = await db.PositionApiTokens
+            .Include(t => t.Position).ThenInclude(p => p.PositionAttributes).ThenInclude(pa => pa.Attribute)
+            .FirstOrDefaultAsync(t => t.Token == token);
+
+        if (apiToken is null)
+            return null;
+
+        var position = apiToken.Position;
+        
+        var candidateIds = await db.Cvs
+            .Where(c => c.PositionId == position.Id)
+            .Select(c => c.CandidateId)
+            .Distinct()
+            .ToListAsync();
+
+        var attributeIds = position.PositionAttributes.Select(pa => pa.AttributeId).ToList();
+
+        var values = await db.CandidateAttributeValues
+            .Where(v => candidateIds.Contains(v.CandidateId) && attributeIds.Contains(v.AttributeId))
+            .ToListAsync();
+
+        var result = new PositionAggregateDto { PositionTitle = position.Name };
+
+        foreach (var pa in position.PositionAttributes)
+        {
+            var attrValues = values.Where(v => v.AttributeId == pa.AttributeId).ToList();
+
+            var dto = new AttributeAggregateDto
+            {
+                Name = pa.Attribute.Name,
+                DataType = pa.Attribute.DataType,
+                TotalCount = candidateIds.Count
+            };
+
+            switch (pa.Attribute.DataType)
+            {
+                case Models.Attributes.AttributeDataTypes.Numeric:
+                    var numbers = attrValues.Where(v => v.NumericValue.HasValue).Select(v => v.NumericValue!.Value).ToList();
+                    dto.FilledCount = numbers.Count;
+                    if (numbers.Count > 0)
+                    {
+                        dto.Average = numbers.Average();
+                        dto.Min = numbers.Min();
+                        dto.Max = numbers.Max();
+                    }
+                    break;
+
+                case Models.Attributes.AttributeDataTypes.Boolean:
+                    var bools = attrValues.Where(v => v.BooleanValue.HasValue).ToList();
+                    dto.FilledCount = bools.Count;
+                    dto.TopValues = bools
+                        .GroupBy(v => v.BooleanValue!.Value)
+                        .Select(g => new ValueCountDto { Value = g.Key ? "true" : "false", Count = g.Count() })
+                        .OrderByDescending(v => v.Count)
+                        .ToList();
+                    break;
+
+                case Models.Attributes.AttributeDataTypes.Select:
+                case Models.Attributes.AttributeDataTypes.String:
+                    var texts = attrValues.Where(v => !string.IsNullOrEmpty(v.TextValue)).ToList();
+                    dto.FilledCount = texts.Count;
+                    dto.TopValues = texts
+                        .GroupBy(v => v.TextValue!)
+                        .Select(g => new ValueCountDto { Value = g.Key, Count = g.Count() })
+                        .OrderByDescending(v => v.Count)
+                        .Take(5)
+                        .ToList();
+                    break;
+
+                case Models.Attributes.AttributeDataTypes.Date:
+                    var dates = attrValues.Where(v => v.DateValue.HasValue).Select(v => v.DateValue!.Value).ToList();
+                    dto.FilledCount = dates.Count;
+                    if (dates.Count > 0)
+                    {
+                        dto.Min = dates.Min().Ticks;
+                        dto.Max = dates.Max().Ticks;
+                    }
+                    break;
+
+                default:
+                    dto.FilledCount = attrValues.Count(v =>
+                        v.TextValue != null || v.NumericValue != null || v.DateValue != null || v.BooleanValue != null);
+                    break;
+            }
+
+            result.Attributes.Add(dto);
+        }
+
+        return result;
+    }
 }

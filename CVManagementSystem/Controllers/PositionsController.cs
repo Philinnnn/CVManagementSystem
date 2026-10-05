@@ -209,4 +209,15 @@ public class PositionsController(
         }).ToList(),
         AccessRules = BuildAccessRules(vm)
     };
+    
+    [HttpPost]
+    [Authorize(Roles = "Recruiter,Administrator")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> GenerateApiToken(int id)
+    {
+        var token = await positionService.GetOrCreateApiTokenAsync(id);
+        TempData["ApiToken"] = token;
+        return RedirectToAction(nameof(Details), new { id });
+    }
+    
 }

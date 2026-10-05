@@ -38,6 +38,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Discussion> Discussions => Set<Discussion>();
     public DbSet<DiscussionMessage> DiscussionMessages => Set<DiscussionMessage>();
     public DbSet<DropboxCredential> DropboxCredentials => Set<DropboxCredential>();
+    public DbSet<PositionApiToken> PositionApiTokens => Set<PositionApiToken>();
     
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -117,5 +118,12 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         builder.Entity<Candidate>()
             .Property(c => c.Version)
             .IsConcurrencyToken();
+        
+        builder.Entity<PositionApiToken>()
+            .HasIndex(t => t.PositionId)
+            .IsUnique();
+        builder.Entity<PositionApiToken>()
+            .HasIndex(t => t.Token)
+            .IsUnique();
     }
 }

@@ -10,6 +10,7 @@
     "nav.logout": "Выйти",
     "nav.signedInAs": "Вы вошли как",
     "nav.accountSettings": "Настройки аккаунта",
+    "nav.integrations": "Интеграции",
     
     "action.save": "Сохранить",
     "action.cancel": "Отмена",
@@ -281,6 +282,9 @@
     "positions.index.selected": "выбрано",
     "positions.index.filteredByTag": "Фильтр по тегу:",
     "positions.index.clearFilter": "Сбросить фильтр",
+    "positions.details.getApiToken": "Получить API-токен",
+    "positions.details.apiToken": "API-токен:",
+    "positions.details.apiEndpoint": "Эндпоинт:",
     
     "search.title": "Поиск",
     "search.resultsFor": "Результаты поиска для",

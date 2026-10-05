@@ -10,6 +10,7 @@
   "nav.logout": "Logout",
   "nav.signedInAs": "Signed in as",
   "nav.accountSettings": "Account Settings",
+  "nav.integrations": "Integrations",
 
   "action.save": "Save",
   "action.cancel": "Cancel",
@@ -277,6 +278,9 @@
   "positions.index.selected": "selected",
   "positions.index.filteredByTag": "Filtered by tag:",
   "positions.index.clearFilter": "Clear filter",
+  "positions.details.getApiToken": "Get API Token",
+  "positions.details.apiToken": "API Token:",
+  "positions.details.apiEndpoint": "Endpoint:",
 
   "search.title": "Search",
   "search.resultsFor": "Search results for",

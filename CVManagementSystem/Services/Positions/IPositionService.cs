@@ -13,4 +13,6 @@ public interface IPositionService
     Task<OperationResult> DeleteAsync(int id);
     Task<bool> CandidateCanAccessAsync(int positionId, int candidateId);
     Task<List<PositionListItemDto>> SearchByTagAsync(string tag);
+    Task<string> GetOrCreateApiTokenAsync(int positionId);
+    Task<PositionAggregateDto?> GetAggregateByTokenAsync(string token);
 }

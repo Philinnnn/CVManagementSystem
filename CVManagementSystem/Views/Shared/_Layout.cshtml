@@ -42,7 +42,7 @@
                     @if (User.IsInRole("Administrator"))
                     {
                         <li class="nav-item"><a class="nav-link" asp-controller="Admin" asp-action="Index">@Loc["nav.users"]</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="Integrations" asp-action="Index">Integrations</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Integrations" asp-action="Index">@Loc["nav.integrations"]</a></li>
                     }
                 </ul>
 

@@ -105,6 +105,17 @@
        class="btn btn-outline-secondary">
         @Loc["positions.details.editPosition"]
     </a>
+    
+    @if (TempData["ApiToken"] != null)
+    {
+        <div class="alert alert-info">
+            @Loc["positions.details.apiToken"] <code>@TempData["ApiToken"]</code><br/>
+            <small>@Loc["positions.details.apiEndpoint"] <code>/api/positions/@TempData["ApiToken"]/aggregate</code></small>
+        </div>
+    }
+    <form asp-action="GenerateApiToken" asp-route-id="@Model.Id" method="post" class="d-inline">
+        <button type="submit" class="btn btn-outline-secondary">@Loc["positions.details.getApiToken"]</button>
+    </form>
 }
 
 @if (User.Identity?.IsAuthenticated == true)
